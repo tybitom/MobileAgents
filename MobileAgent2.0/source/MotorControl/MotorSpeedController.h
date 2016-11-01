@@ -79,7 +79,8 @@ public:
 			if (timeElapsed >= sampleTime) {
 				unsigned long encoderCounterValue = encoder->getCounterValue();
 
-				//Serial.println(timeElapsed, DEC);
+				Serial.println(timeElapsed, DEC);
+				Serial.print('\t');
 
 				measuredSpeed = (encoderCounterValue - encoderPreviousValue)
 						* (1000000.0 / timeElapsed); // [imp/s]
@@ -95,9 +96,10 @@ public:
 				}
 
 				plot2(Serial, measuredSpeed, motorOutput);
-				/*Serial.print(measuredSpeed, DEC);
 				Serial.print('\t');
-				Serial.println(measuredSpeed, DEC);*/
+				Serial.print(measuredSpeed, DEC);
+				Serial.print('\t');
+				Serial.println(motorOutput, DEC);
 			}
 		}
 		//else log that encoder was not initialized
