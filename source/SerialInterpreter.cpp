@@ -46,6 +46,8 @@ bool SerialInterpreter::interpreteMessage(String &json) {
 			result = interpretePinCTRL(jsonObject);
 		} else if (type == "task") {
 			result = interpreteTask(jsonObject);
+		} else if (type == "motorCTRL") {
+			result = interpreteMotorCTRL(jsonObject);
 		} else {
 			Serial.println("ERROR! JSON type not known! Readed JSON data: ");
 			result = false;
@@ -57,6 +59,7 @@ bool SerialInterpreter::interpreteMessage(String &json) {
 				Serial.print(it->key);
 				Serial.print(": ");
 				Serial.print(it->value.asString());
+				Serial.print(", ");
 			}
 			Serial.println();
 		}
@@ -137,15 +140,14 @@ bool SerialInterpreter::interpreteTask(JsonObject& jsonObject) {
 	bool activateTask = jsonObject["activateTask"];
 	if (activateTask) {
 		String fun = jsonObject["fun"]; // fun like function
-		Serial.println(fun);
 		if (fun == "blinkLed") {
-			Serial.println("here");
 			int id = jsonObject["id"];
 			unsigned long sampleTime = jsonObject["sampleTime"];
 			Serial.print("Setting task blinkLed with parameters: ");
 			Serial.print(id);
 			Serial.print(", ");
-			Serial.println(sampleTime);
+			Serial.print(sampleTime);
+			Serial.println("...");
 			if (!PinController::getInstance()->setPinUsage(LED_BUILTIN,
 					DIGITAL_OUPUT)
 					|| !TaskManager::getInstance()->addTask(id, sampleTime,
@@ -165,6 +167,54 @@ bool SerialInterpreter::interpreteTask(JsonObject& jsonObject) {
 			result = false;
 			// Log that no task with provided id was found
 		}
+	}
+	return result;
+}
+
+bool SerialInterpreter::interpreteMotorCTRL(JsonObject& jsonObject) {
+	bool result = true;
+	String motor = jsonObject["motor"];
+	String cmd = jsonObject["cmd"];
+	if (cmd == "state") {
+		bool activate = jsonObject["activate"];
+		ControlState state;
+		activate ? state = CONTROL_ENABLED : state = CONTROL_DISABLED;
+		if (motor == "L") {
+			leftWheel.setControlState(state);
+		} else if (motor == "R") {
+			rightWheel.setControlState(state);
+		} else {
+			Serial.println(
+					"ERROR! Not specified, if it is right or left motor!");
+		}
+	} else if (cmd == "PID") {
+		double kp = jsonObject["kp"];
+		double ki = jsonObject["ki"];
+		double kd = jsonObject["kd"];
+		unsigned long sampleTime = jsonObject["dt"];
+		if (motor == "L") {
+			leftWheel.setPIDParameters(kp, ki, kd);
+			leftWheel.setSampleTime(sampleTime);
+		} else if (motor == "R") {
+			rightWheel.setPIDParameters(kp, ki, kd);
+			rightWheel.setSampleTime(sampleTime);
+		} else {
+			Serial.println(
+					"ERROR! Not specified, if it is right or left motor!");
+		}
+	} else if (cmd == "speed") {
+		int setSpeed = jsonObject["setSpeed"];
+		if (motor == "L") {
+			leftWheel.setSetSpeed(setSpeed);
+		} else if (motor == "R") {
+			rightWheel.setSetSpeed(setSpeed);
+		} else {
+			Serial.println(
+					"ERROR! Not specified, if it is right or left motor!");
+		}
+	} else {
+		Serial.println("ERROR! Motor control command unknown!");
+		result = false;
 	}
 	return result;
 }

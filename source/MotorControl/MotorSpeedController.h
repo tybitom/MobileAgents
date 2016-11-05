@@ -15,15 +15,18 @@
 #include "Motor.h"
 #include "../Simplot/Simplot.h"
 
+// ControlState for MotorSpeedController
+// when CONTROL_DISABLED function controllSpeed does nothing
+enum ControlState {
+	CONTROL_ENABLED, CONTROL_DISABLED
+};
+
 class MotorSpeedController {
 private:
 	elapsedMicros timeElapsed;
 	unsigned long encoderPreviousValue = 0;
 	unsigned int sampleTime = 100; // a default value the same like in PID.h
-	enum ControlState {
-		CONTOL_ENABLED, CONTOL_DISABLED
-	};
-	ControlState controlState = CONTOL_DISABLED;
+	ControlState controlState = CONTROL_DISABLED;
 
 	// Regulation Parameters (double>=0)
 	double Kp = 0.8;
@@ -46,7 +49,7 @@ public:
 		myPID = new PID(&measuredSpeed, &motorOutput, &setSpeed, Kp, Ki, Kd,
 		DIRECT);
 		myPID->SetMode(AUTOMATIC); //turn the PID on
-		controlState = CONTOL_ENABLED;
+		controlState = CONTROL_ENABLED;
 	}
 
 	void initializeController(uint8_t encPinA, uint8_t encPinB,
@@ -57,7 +60,7 @@ public:
 		myPID = new PID(&measuredSpeed, &motorOutput, &setSpeed, kp, ki, kd,
 		DIRECT);
 		myPID->SetMode(AUTOMATIC); //turn the PID on
-		controlState = CONTOL_ENABLED;
+		controlState = CONTROL_ENABLED;
 	}
 
 	void initializeController(uint8_t encPinA, uint8_t encPinB,
@@ -71,11 +74,11 @@ public:
 		myPID->SetSampleTime(sampleTime);
 
 		myPID->SetMode(AUTOMATIC); //turn the PID on
-		controlState = CONTOL_ENABLED;
+		controlState = CONTROL_ENABLED;
 	}
 
 	void controllSpeed() {
-		if (controlState == CONTOL_ENABLED) {
+		if (controlState == CONTROL_ENABLED) {
 			if (timeElapsed >= sampleTime) {
 				unsigned long encoderCounterValue = encoder->getCounterValue();
 
@@ -106,19 +109,19 @@ public:
 	}
 
 	unsigned long getEncoderCounterValue() const {
-		if (controlState == CONTOL_ENABLED) {
+		if (controlState == CONTROL_ENABLED) {
 			return encoder->getCounterValue();
 		}
 		return 0;
 	}
 
 	void resetPID() {
-		controlState = CONTOL_DISABLED;
+		controlState = CONTROL_DISABLED;
 		delete myPID;
 		myPID = new PID(&measuredSpeed, &motorOutput, &setSpeed, Kp, Ki, Kd,
 		DIRECT);
 		myPID->SetMode(AUTOMATIC); //turn the PID on
-		controlState = CONTOL_ENABLED;
+		controlState = CONTROL_ENABLED;
 	}
 
 	double getKd() const {
@@ -187,12 +190,23 @@ public:
 		motor->changeDirection();
 	}
 
+	void stopMotor() {
+		motor->stopMotor();
+	}
+
 	String getControlState() {
-		if (controlState == CONTOL_ENABLED) {
-			return "CONTOL_ENABLED";
+		if (controlState == CONTROL_ENABLED) {
+			return "CONTROL_ENABLED";
 		}
 		// else
-		return "CONTOL_DISABLED";
+		return "CONTROL_DISABLED";
+	}
+
+	void setControlState(ControlState controlState = CONTROL_DISABLED) {
+		if(encoder != nullptr) {
+			encoderPreviousValue = encoder->getCounterValue();
+			this->controlState = controlState;
+		}
 	}
 };
 

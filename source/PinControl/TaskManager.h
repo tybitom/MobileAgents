@@ -18,9 +18,13 @@ private:
 	static int taskCounter;
 	ScheduledTask tasks[MAX_NUMBER_OF_TASKS];
 	static TaskManager *taskManagerInstance;
+
+	int checkIfTaskExists(int id);
 public:
 	static TaskManager* getInstance();
 	bool addTask(ScheduledTask task);
+	bool addTask(int id, unsigned long sampleTime, void (*taskFunction)(void));
+	bool deactivateTask(int id);
 	void realizeTasks();
 };
 

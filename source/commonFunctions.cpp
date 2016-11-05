@@ -1,12 +1,10 @@
 /*
- * printFunctions.h
+ * commonFunctions.cpp
  *
  *  Created on: 29.10.2016
  *      Author: TTYBISZE
  */
-
-#ifndef PRINTFUNCTIONS_H_
-#define PRINTFUNCTIONS_H_
+#include "commonFunctions.h"
 
 #include "Arduino.h"
 
@@ -52,6 +50,3 @@ void blinkLed() {
 	PinController::getInstance()->setPinState(LED_BUILTIN, LOW);
 	delay(300);
 }
-
-
-#endif /* PRINTFUNCTIONS_H_ */

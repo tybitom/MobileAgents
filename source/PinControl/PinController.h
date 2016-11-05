@@ -55,10 +55,11 @@ private:
 public:
 	static PinController* getInstance();
 	bool setPinUsage(uint8_t pinNumber,	PIN_TYPE pinType);
+	bool setPinUsage(uint8_t pinNumber,	String pinType);
 	PIN_TYPE getPinUsage(uint8_t pinNumber);
 	int getNumberOfPinsAviable();
-	void setPinState(uint8_t pinNumber, uint8_t state);
-	void setPWM(uint8_t pinNumber, int value);
+	bool setPinState(uint8_t pinNumber, uint8_t state);
+	bool setPWM(uint8_t pinNumber, int value);
 };
 
 #endif /* PINCONTROLLER_H_ */
