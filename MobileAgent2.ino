@@ -8,7 +8,7 @@
 #include "source/Simplot/Simplot.h"
 
 MotorSpeedController leftWheel;
-MotorSpeedController rightWheel;
+//MotorSpeedController rightWheel;
 
 #include "source/commonFunctions.h"
 #include "source/SerialInterpreter.h"
@@ -26,36 +26,51 @@ void setup() {
 	Serial.begin(38400);
 
 	leftWheel.initializeController(encoder0PinA, encoder0PinB,
-			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.5, 0.01, 0.01,
-			300);
+			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.01, 0.01,
+			200);
 	leftWheel.setSetSpeed(1000);
 
-	rightWheel.initializeController(encoder1PinA, encoder1PinB,
+	/*rightWheel.initializeController(encoder1PinA, encoder1PinB,
 			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.5, 0.01, 0.01,
 			100);
-	rightWheel.setSetSpeed(1000);
+	rightWheel.setSetSpeed(1000);*/
 
 	leftWheel.setControlState(CONTROL_DISABLED);
-	rightWheel.setControlState(CONTROL_DISABLED);
+	//rightWheel.setControlState(CONTROL_DISABLED);
 }
 
 void loop() {
 
 	leftWheel.controllSpeed();
-	rightWheel.controllSpeed();
+	//rightWheel.controllSpeed();
 
 	TaskManager::getInstance()->realizeTasks();
 }
 
 void serialEvent() {
-	String inputString = Serial.readString();
+	String inputString;
+	//inputString.reserve(100);
+	inputString = Serial.readString();
+	Serial.println(inputString.length());
 	if (inputString != "") {
 		Serial.println(inputString);
-		if (SerialInterpreter::getInstance()->interpreteMessage(inputString)) {
+		//if (SerialInterpreter::getInstance()->interpreteMessage(inputString)) {
+		if (interpreteMessage(inputString)) {
 			Serial.println("OK");
 		} else {
 			Serial.println("NOT OK");
 		}
 		inputString = "";
 	}
+	/*while (Serial.available()) {
+	    // get the new byte:
+	    char inChar = (char)Serial.read();
+	    // add it to the inputString:
+	    inputString += inChar;
+	    // if the incoming character is a newline, set a flag
+	    // so the main loop can do something about it:
+	    if (inChar == '\n') {
+	      stringComplete = true;
+	    }
+	  }*/
 }

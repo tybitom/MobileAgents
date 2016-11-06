@@ -9,7 +9,7 @@
 
 #include "../PinControl/PinController.h"
 
-int Encoder::encoderInstanceCounter = 0;
+uint8_t Encoder::encoderInstanceCounter = 0;
 
 Encoder* initializeEncoder(uint8_t a, uint8_t b, volatile unsigned long &counterValue) {
 	return new Encoder(a, b, counterValue);

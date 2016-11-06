@@ -5,12 +5,15 @@
  *      Author: Tomek
  */
 
+#include "Defines.h"
 #include "SerialInterpreter.h"
 #include "commonFunctions.h"
+#include "MotorControl/MotorSpeedController.h"
 #include "PinControl/PinController.h"
 #include "PinControl/TaskManager.h"
 
-SerialInterpreter *SerialInterpreter::serialInterpreterInstance = nullptr;
+extern MotorSpeedController leftWheel;
+//extern MotorSpeedController rightWheel;
 
 // json object pattern:
 // {
@@ -28,32 +31,26 @@ SerialInterpreter *SerialInterpreter::serialInterpreterInstance = nullptr;
 //    "pinNumber": 5,
 //    "pinType": DIGITAL_OUPUT
 // }
-SerialInterpreter* SerialInterpreter::getInstance() {
-	if (serialInterpreterInstance == nullptr) {
-		serialInterpreterInstance = new SerialInterpreter();
-	}
-	return serialInterpreterInstance;
-}
-
-bool SerialInterpreter::interpreteMessage(String &json) {
+bool interpreteMessage(String &json) {
 	bool result = true;
-	StaticJsonBuffer<200> jsonBuffer;
+	StaticJsonBuffer<170> jsonBuffer;
 	JsonObject& jsonObject = jsonBuffer.parseObject(json);
 	if (jsonObject.success()) {
-		String type = jsonObject["type"];
-
-		if (type == "pinCTRL") {
+		const String msgType = jsonObject["type"].asString();
+		if (msgType == "pinCTRL") {
 			result = interpretePinCTRL(jsonObject);
-		} else if (type == "task") {
+		} else if (msgType == "task") {
 			result = interpreteTask(jsonObject);
-		} else if (type == "motorCTRL") {
-			result = interpreteMotorCTRL(jsonObject);
+		} else if (msgType == "motorL") {
+			result = interpreteMotorCTRL(jsonObject, true);
+		} else if (msgType == "motorR") {
+			result = interpreteMotorCTRL(jsonObject, false);
 		} else {
-			Serial.println("ERROR! JSON type not known! Readed JSON data: ");
+			Serial.print("ERROR! JSON type unknown! ");
 			result = false;
 		}
 		if (!result) {
-			Serial.print("Interpreted JSON: ");
+			Serial.print(" Readed JSON data: ");
 			for (JsonObject::iterator it = jsonObject.begin();
 					it != jsonObject.end(); ++it) {
 				Serial.print(it->key);
@@ -70,41 +67,7 @@ bool SerialInterpreter::interpreteMessage(String &json) {
 	return result;
 }
 
-bool SerialInterpreter::interpreteMessage(char json[]) {
-	bool result = true;
-	StaticJsonBuffer<200> jsonBuffer;
-	JsonObject& jsonObject = jsonBuffer.parseObject(json);
-	if (jsonObject.success()) {
-		String type = jsonObject["type"];
-		Serial.println(type);
-
-		if (type == "pinCTRL") {
-			result = interpretePinCTRL(jsonObject);
-		} else if (type == "task") {
-			result = interpreteTask(jsonObject);
-		} else {
-			Serial.println("ERROR! JSON type not known! Readed JSON data: ");
-			result = false;
-		}
-		if (!result) {
-			Serial.print("Interpreted JSON: ");
-			for (JsonObject::iterator it = jsonObject.begin();
-					it != jsonObject.end(); ++it) {
-				Serial.print(it->key);
-				Serial.print(": ");
-				Serial.print(it->value.asString());
-				Serial.print(", ");
-			}
-			Serial.println();
-		}
-	} else {
-		Serial.println("Parsing JSON message failed");
-		result = false;
-	}
-	return result;
-}
-
-bool SerialInterpreter::interpretePinCTRL(JsonObject& jsonObject) {
+bool interpretePinCTRL(JsonObject& jsonObject) {
 	bool result = true;
 	String fun = jsonObject["fun"]; // fun like function
 	if (fun == "setPinUsage") {
@@ -135,23 +98,37 @@ bool SerialInterpreter::interpretePinCTRL(JsonObject& jsonObject) {
 	return result;
 }
 
-bool SerialInterpreter::interpreteTask(JsonObject& jsonObject) {
+bool interpreteTask(JsonObject& jsonObject) {
 	bool result = true;
 	bool activateTask = jsonObject["activateTask"];
 	if (activateTask) {
 		String fun = jsonObject["fun"]; // fun like function
+		int id = jsonObject["id"];
+		unsigned long sampleTime = jsonObject["sampleTime"];
+		Serial.print("Setting task ");
+		Serial.print(fun);
+		Serial.print( "with parameters: ");
+		Serial.print(id);
+		Serial.print(", ");
+		Serial.print(sampleTime);
+		Serial.println("...");
 		if (fun == "blinkLed") {
-			int id = jsonObject["id"];
-			unsigned long sampleTime = jsonObject["sampleTime"];
-			Serial.print("Setting task blinkLed with parameters: ");
-			Serial.print(id);
-			Serial.print(", ");
-			Serial.print(sampleTime);
-			Serial.println("...");
 			if (!PinController::getInstance()->setPinUsage(LED_BUILTIN,
 					DIGITAL_OUPUT)
 					|| !TaskManager::getInstance()->addTask(id, sampleTime,
 							&blinkLed)) {
+				Serial.println("ERROR! Adding task failed!");
+				result = false;
+			}
+		} else if (fun == "plotPID") {
+			if (!TaskManager::getInstance()->addTask(id, sampleTime,
+							&plotPID)) {
+				Serial.println("ERROR! Adding task failed!");
+				result = false;
+			}
+		} else if (fun == "printPID") {
+			if (!TaskManager::getInstance()->addTask(id, sampleTime,
+							&printPID)) {
 				Serial.println("ERROR! Adding task failed!");
 				result = false;
 			}
@@ -171,46 +148,53 @@ bool SerialInterpreter::interpreteTask(JsonObject& jsonObject) {
 	return result;
 }
 
-bool SerialInterpreter::interpreteMotorCTRL(JsonObject& jsonObject) {
+bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
 	bool result = true;
-	String motor = jsonObject["motor"];
 	String cmd = jsonObject["cmd"];
+	Serial.println(cmd);
+	/*if (cmd == "stop") {
+		if (leftMotor) {
+			leftWheel.stopMotor();
+		} else {
+			rightWheel.stopMotor();
+		}
+	} else*/
 	if (cmd == "state") {
 		bool activate = jsonObject["activate"];
-		ControlState state;
+		if(activate)
+			Serial.println("Activate: Yes");
+		else
+			Serial.println("Activate: No");
+		ControlState state = CONTROL_DISABLED;
 		activate ? state = CONTROL_ENABLED : state = CONTROL_DISABLED;
-		if (motor == "L") {
+		if (leftMotor) {
 			leftWheel.setControlState(state);
-		} else if (motor == "R") {
+			leftWheel.stopMotor();
+		} /*else {
 			rightWheel.setControlState(state);
-		} else {
-			Serial.println(
-					"ERROR! Not specified, if it is right or left motor!");
-		}
+			rightWheel.stopMotor();
+		}*/
 	} else if (cmd == "PID") {
 		double kp = jsonObject["kp"];
 		double ki = jsonObject["ki"];
 		double kd = jsonObject["kd"];
 		unsigned long sampleTime = jsonObject["dt"];
-		if (motor == "L") {
+		Serial.println("Setting new PID parameters...");
+		if (leftMotor) {
+			leftWheel.stopMotor();
 			leftWheel.setPIDParameters(kp, ki, kd);
 			leftWheel.setSampleTime(sampleTime);
-		} else if (motor == "R") {
-			rightWheel.setPIDParameters(kp, ki, kd);
-			rightWheel.setSampleTime(sampleTime);
 		} else {
-			Serial.println(
-					"ERROR! Not specified, if it is right or left motor!");
+			/*rightWheel.stopMotor();
+			rightWheel.setPIDParameters(kp, ki, kd);
+			rightWheel.setSampleTime(sampleTime);*/
 		}
 	} else if (cmd == "speed") {
 		int setSpeed = jsonObject["setSpeed"];
-		if (motor == "L") {
+		if (leftMotor) {
 			leftWheel.setSetSpeed(setSpeed);
-		} else if (motor == "R") {
-			rightWheel.setSetSpeed(setSpeed);
 		} else {
-			Serial.println(
-					"ERROR! Not specified, if it is right or left motor!");
+			//rightWheel.setSetSpeed(setSpeed);
 		}
 	} else {
 		Serial.println("ERROR! Motor control command unknown!");

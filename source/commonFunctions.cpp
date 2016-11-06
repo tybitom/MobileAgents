@@ -8,6 +8,9 @@
 
 #include "Arduino.h"
 
+extern MotorSpeedController leftWheel;
+extern MotorSpeedController rightWheel;
+
 /*void printEncoderValues() {
 	//Serial.print("Encoder counter value: ");
 	//Serial.println(leftWheel.getControlState());
@@ -20,10 +23,6 @@ void printMeasuredSpeed() {
 	Serial.print(leftWheel.getMeasuredSpeed(), DEC);
 	Serial.print('\t');
 	Serial.println(rightWheel.getMeasuredSpeed(), DEC);
-}
-
-void printControlResults() {
-	plot2(Serial, leftWheel.getMeasuredSpeed(), leftWheel.getMotorOutput());
 }
 
 void printAll() {
@@ -49,4 +48,16 @@ void blinkLed() {
 	delay(300);
 	PinController::getInstance()->setPinState(LED_BUILTIN, LOW);
 	delay(300);
+}
+
+void printPID() {
+	Serial.print(leftWheel.getMeasuredSpeed());
+	Serial.print('\t');
+	Serial.print(leftWheel.getMotorOutput());
+	Serial.println();
+}
+
+void plotPID() {
+	plot2(Serial, leftWheel.getMeasuredSpeed()/1000, leftWheel.getMotorOutput());
+	Serial.println();
 }

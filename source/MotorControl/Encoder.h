@@ -17,7 +17,7 @@ private:
 	uint8_t encoderPinB;
 	volatile unsigned long *counterValue;
 
-	static int encoderInstanceCounter;
+	static uint8_t encoderInstanceCounter;
 
 	Encoder(uint8_t a, uint8_t b, volatile unsigned long &cv);
 public:

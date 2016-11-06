@@ -10,16 +10,9 @@
 
 #include "ArduinoJson.h"
 
-class SerialInterpreter {
-private:
-	static SerialInterpreter *serialInterpreterInstance;
-public:
-	static SerialInterpreter* getInstance();
-	bool interpreteMessage(String &json);
-	bool interpreteMessage(char json[]);
-	bool interpretePinCTRL(JsonObject& jsonObject);
-	bool interpreteTask(JsonObject& jsonObject);
-	bool interpreteMotorCTRL(JsonObject& jsonObject);
-};
+bool interpreteMessage(String &json);
+bool interpretePinCTRL(JsonObject& jsonObject);
+bool interpreteTask(JsonObject& jsonObject);
+bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor);
 
 #endif /* SOURCE_SERIALINTERPRETER_H_ */

@@ -23,7 +23,7 @@ enum ControlState {
 
 class MotorSpeedController {
 private:
-	elapsedMicros timeElapsed;
+	elapsedMillis timeElapsed;
 	unsigned long encoderPreviousValue = 0;
 	unsigned int sampleTime = 100; // a default value the same like in PID.h
 	ControlState controlState = CONTROL_DISABLED;
@@ -50,6 +50,7 @@ public:
 		DIRECT);
 		myPID->SetMode(AUTOMATIC); //turn the PID on
 		controlState = CONTROL_ENABLED;
+		printPIDParameters();
 	}
 
 	void initializeController(uint8_t encPinA, uint8_t encPinB,
@@ -61,6 +62,7 @@ public:
 		DIRECT);
 		myPID->SetMode(AUTOMATIC); //turn the PID on
 		controlState = CONTROL_ENABLED;
+		printPIDParameters();
 	}
 
 	void initializeController(uint8_t encPinA, uint8_t encPinB,
@@ -75,6 +77,7 @@ public:
 
 		myPID->SetMode(AUTOMATIC); //turn the PID on
 		controlState = CONTROL_ENABLED;
+		printPIDParameters();
 	}
 
 	void controllSpeed() {
@@ -82,12 +85,18 @@ public:
 			if (timeElapsed >= sampleTime) {
 				unsigned long encoderCounterValue = encoder->getCounterValue();
 
-				Serial.println(timeElapsed, DEC);
-				Serial.print('\t');
+				//Serial.println(timeElapsed);
+				/*if (timeElapsed > (1.5 * sampleTime)) {
+					Serial.println("Motor control is not called on time!");
+				}*/
+				//plot1(Serial, timeElapsed);
 
-				measuredSpeed = (encoderCounterValue - encoderPreviousValue)
-						* (1000000.0 / timeElapsed); // [imp/s]
+				int ds = encoderCounterValue - encoderPreviousValue;
+				//Serial.println(ds);
+				measuredSpeed = (ds)
+						* (1000.0 / timeElapsed); // [imp/s]
 				timeElapsed = 0;
+				//Serial.println(measuredSpeed);
 
 				//Serial.println(measuredSpeed, DEC);
 
@@ -97,12 +106,13 @@ public:
 				if (myPID->Compute()) {
 					motor->setMotorSpeed(motorOutput);
 				}
+				Serial.println(motorOutput);
+				plot3(Serial, ds, measuredSpeed, motorOutput);
 
-				plot2(Serial, measuredSpeed, motorOutput);
-				Serial.print('\t');
+				/*Serial.print('\t');
 				Serial.print(measuredSpeed, DEC);
 				Serial.print('\t');
-				Serial.println(motorOutput, DEC);
+				Serial.println(motorOutput, DEC);*/
 			}
 		}
 		//else log that encoder was not initialized
@@ -121,7 +131,6 @@ public:
 		myPID = new PID(&measuredSpeed, &motorOutput, &setSpeed, Kp, Ki, Kd,
 		DIRECT);
 		myPID->SetMode(AUTOMATIC); //turn the PID on
-		controlState = CONTROL_ENABLED;
 	}
 
 	double getKd() const {
@@ -156,6 +165,16 @@ public:
 		Ki = ki;
 		Kd = kd;
 		resetPID();
+		printPIDParameters();
+	}
+
+	void printPIDParameters() {
+		Serial.print("Parameters were set: ");
+		Serial.print(myPID->GetKp());
+		Serial.print(", ");
+		Serial.print(myPID->GetKi());
+		Serial.print(", ");
+		Serial.println(myPID->GetKd());
 	}
 
 	// sets the frequency, in Milliseconds, with which
