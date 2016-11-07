@@ -7,8 +7,8 @@
 #include "source/PinControl/TaskManager.h"
 #include "source/Simplot/Simplot.h"
 
+MotorSpeedController rightWheel;
 MotorSpeedController leftWheel;
-//MotorSpeedController rightWheel;
 
 #include "source/commonFunctions.h"
 #include "source/SerialInterpreter.h"
@@ -25,24 +25,26 @@ MotorSpeedController leftWheel;
 void setup() {
 	Serial.begin(38400);
 
+	rightWheel.initializeController(encoder1PinA, encoder1PinB,
+			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.2, 0.05, 0.01,
+			50);
+	rightWheel.setSetSpeed(1000);
+
 	leftWheel.initializeController(encoder0PinA, encoder0PinB,
-			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.01, 0.01,
+			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.05, 0.002,
 			200);
 	leftWheel.setSetSpeed(1000);
 
-	/*rightWheel.initializeController(encoder1PinA, encoder1PinB,
-			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.5, 0.01, 0.01,
-			100);
-	rightWheel.setSetSpeed(1000);*/
+	delay(200);
 
-	leftWheel.setControlState(CONTROL_DISABLED);
-	//rightWheel.setControlState(CONTROL_DISABLED);
+	rightWheel.enableController();
+	leftWheel.enableController();
 }
 
 void loop() {
 
-	leftWheel.controllSpeed();
-	//rightWheel.controllSpeed();
+	leftWheel.controlSpeed();
+	rightWheel.controlSpeed();
 
 	TaskManager::getInstance()->realizeTasks();
 }
@@ -51,8 +53,10 @@ void serialEvent() {
 	String inputString;
 	//inputString.reserve(100);
 	inputString = Serial.readString();
-	Serial.println(inputString.length());
-	if (inputString != "") {
+	if(inputString.length() >= 100) {
+		Serial.println("JSON message too long! Over 100 chars!");
+	}
+	else if (inputString != "") {
 		Serial.println(inputString);
 		//if (SerialInterpreter::getInstance()->interpreteMessage(inputString)) {
 		if (interpreteMessage(inputString)) {

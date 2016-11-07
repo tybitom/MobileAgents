@@ -13,7 +13,7 @@
 #include "PinControl/TaskManager.h"
 
 extern MotorSpeedController leftWheel;
-//extern MotorSpeedController rightWheel;
+extern MotorSpeedController rightWheel;
 
 // json object pattern:
 // {
@@ -107,7 +107,7 @@ bool interpreteTask(JsonObject& jsonObject) {
 		unsigned long sampleTime = jsonObject["sampleTime"];
 		Serial.print("Setting task ");
 		Serial.print(fun);
-		Serial.print( "with parameters: ");
+		Serial.print("with parameters: ");
 		Serial.print(id);
 		Serial.print(", ");
 		Serial.print(sampleTime);
@@ -122,13 +122,13 @@ bool interpreteTask(JsonObject& jsonObject) {
 			}
 		} else if (fun == "plotPID") {
 			if (!TaskManager::getInstance()->addTask(id, sampleTime,
-							&plotPID)) {
+					&plotPID)) {
 				Serial.println("ERROR! Adding task failed!");
 				result = false;
 			}
 		} else if (fun == "printPID") {
 			if (!TaskManager::getInstance()->addTask(id, sampleTime,
-							&printPID)) {
+					&printPID)) {
 				Serial.println("ERROR! Adding task failed!");
 				result = false;
 			}
@@ -153,41 +153,47 @@ bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
 	String cmd = jsonObject["cmd"];
 	Serial.println(cmd);
 	/*if (cmd == "stop") {
-		if (leftMotor) {
-			leftWheel.stopMotor();
-		} else {
-			rightWheel.stopMotor();
-		}
-	} else*/
+	 if (leftMotor) {
+	 leftWheel.stopMotor();
+	 } else {
+	 rightWheel.stopMotor();
+	 }
+	 } else*/
 	if (cmd == "state") {
 		bool activate = jsonObject["activate"];
-		if(activate)
+		if (activate)
 			Serial.println("Activate: Yes");
 		else
 			Serial.println("Activate: No");
-		ControlState state = CONTROL_DISABLED;
-		activate ? state = CONTROL_ENABLED : state = CONTROL_DISABLED;
-		if (leftMotor) {
-			leftWheel.setControlState(state);
-			leftWheel.stopMotor();
-		} /*else {
-			rightWheel.setControlState(state);
-			rightWheel.stopMotor();
-		}*/
+		if (activate) {
+			if (leftMotor) {
+				leftWheel.enableController();
+			} else {
+				rightWheel.enableController();
+			}
+		} else {
+			if (leftMotor) {
+				leftWheel.disableController();
+				leftWheel.stopMotor();
+			} else {
+				rightWheel.disableController();
+				rightWheel.stopMotor();
+			}
+		}
 	} else if (cmd == "PID") {
 		double kp = jsonObject["kp"];
 		double ki = jsonObject["ki"];
 		double kd = jsonObject["kd"];
-		unsigned long sampleTime = jsonObject["dt"];
+		int sampleTime = jsonObject["dt"];
 		Serial.println("Setting new PID parameters...");
 		if (leftMotor) {
-			leftWheel.stopMotor();
+			//leftWheel.stopMotor();
 			leftWheel.setPIDParameters(kp, ki, kd);
 			leftWheel.setSampleTime(sampleTime);
 		} else {
-			/*rightWheel.stopMotor();
+			//rightWheel.stopMotor();
 			rightWheel.setPIDParameters(kp, ki, kd);
-			rightWheel.setSampleTime(sampleTime);*/
+			rightWheel.setSampleTime(sampleTime);
 		}
 	} else if (cmd == "speed") {
 		int setSpeed = jsonObject["setSpeed"];

@@ -15,20 +15,11 @@ Encoder* initializeEncoder(uint8_t a, uint8_t b, volatile unsigned long &counter
 	return new Encoder(a, b, counterValue);
 }
 
-Encoder::Encoder(uint8_t a, uint8_t b, volatile unsigned long &cv) {
-	encoderPinA = a;
-	encoderPinB = b;
+Encoder::Encoder(uint8_t encoderPinA, uint8_t encoderPinB, volatile unsigned long &cv) {
 	counterValue = &cv;
 
-	// pinMode(encoderPinA, INPUT);
-	// digitalWrite(encoderPinA, HIGH);       // turn on pullup resistor
-	// pinMode(encoderPinB, INPUT);
-	// digitalWrite(encoderPinB, HIGH);       // turn on pullup resistor
 	PinController::getInstance()->setPinUsage(encoderPinA, DIGITAL_INPUT);
-	PinController::getInstance()->setPinState(encoderPinA, HIGH);
 	PinController::getInstance()->setPinUsage(encoderPinB, DIGITAL_INPUT);
-	PinController::getInstance()->setPinState(encoderPinB, HIGH);
-
 
 	switch (encoderInstanceCounter) {
 	case 0: {
@@ -49,13 +40,5 @@ Encoder::Encoder(uint8_t a, uint8_t b, volatile unsigned long &cv) {
 
 volatile unsigned long Encoder::getCounterValue() const {
 	return *counterValue;
-}
-
-uint8_t Encoder::getEncoderPinA() const {
-	return encoderPinA;
-}
-
-uint8_t Encoder::getEncoderPinB() const {
-	return encoderPinB;
 }
 

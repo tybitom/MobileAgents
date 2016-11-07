@@ -13,22 +13,18 @@
 
 class Encoder {
 private:
-	uint8_t encoderPinA;
-	uint8_t encoderPinB;
 	volatile unsigned long *counterValue;
 
 	static uint8_t encoderInstanceCounter;
 
 	Encoder(uint8_t a, uint8_t b, volatile unsigned long &cv);
 public:
-	friend Encoder* initializeEncoder(uint8_t a, uint8_t b, volatile unsigned long &counterValue);
+	friend Encoder* initializeEncoder(uint8_t encoderPinA, uint8_t encoderPinB,
+			volatile unsigned long &counterValue);
 	volatile unsigned long getCounterValue() const;
-
-	uint8_t getEncoderPinA() const;
-
-	uint8_t getEncoderPinB() const;
 };
 
-Encoder* initializeEncoder(uint8_t a, uint8_t b, volatile unsigned long &counterValue);
+Encoder* initializeEncoder(uint8_t a, uint8_t b,
+		volatile unsigned long &counterValue);
 
 #endif /* ENCODER_H_ */
