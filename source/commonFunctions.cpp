@@ -8,56 +8,53 @@
 
 #include "Arduino.h"
 
-extern MotorSpeedController leftWheel;
+//extern MotorSpeedController leftWheel;
 extern MotorSpeedController rightWheel;
 
-/*void printEncoderValues() {
-	//Serial.print("Encoder counter value: ");
-	//Serial.println(leftWheel.getControlState());
-	Serial.print(leftWheel.getEncoderCounterValue(), DEC);
-	Serial.print('\t');
-	Serial.println(rightWheel.getEncoderCounterValue(), DEC);
-}
-
-void printMeasuredSpeed() {
-	Serial.print(leftWheel.getMeasuredSpeed(), DEC);
-	Serial.print('\t');
-	Serial.println(rightWheel.getMeasuredSpeed(), DEC);
-}
-
-void printAll() {
-	Serial.print(leftWheel.getEncoderCounterValue(), DEC);
-	Serial.print('\t');
-	Serial.print(rightWheel.getEncoderCounterValue(), DEC);
-	Serial.print('\t');
-	Serial.print(leftWheel.getMeasuredSpeed(), DEC);
-	Serial.print('\t');
-	Serial.println(rightWheel.getMeasuredSpeed(), DEC);
-}*/
+/////////////// REPEATED FUNCTIONS FOR TASKS ///////////////////////
 
 void blinkLed() {
-	/*if(PinController::getInstance()->getPinUsage(LED_BUILTIN) == DIGITAL_OUPUT) {
-		if(digitalRead(LED_BUILTIN) == LOW) {
-			digitalWrite(LED_BUILTIN, HIGH);
-		}
-		else {
-			digitalWrite(LED_BUILTIN, LOW);
-		}
-	}*/
 	PinController::getInstance()->setPinState(LED_BUILTIN, HIGH);
 	delay(300);
 	PinController::getInstance()->setPinState(LED_BUILTIN, LOW);
 	delay(300);
 }
 
-void printPID() {
+void printEncoderValues() {
+	Serial.print("Encoder counter values: L: ");
+	//Serial.print(leftWheel.getEncoderCounterValue(), DEC);
+	Serial.print("\tR: ");
+	Serial.println(rightWheel.getEncoderCounterValue(), DEC);
+}
+
+void plotEncoderValues() {
+	//plot2(Serial, leftWheel.getEncoderCounterValue(), rightWheel.getEncoderCounterValue());
+}
+
+void printPIDcontrol() {
+	/*Serial.print(leftWheel.getDs());
+	Serial.print('\t');
 	Serial.print(leftWheel.getMeasuredSpeed());
 	Serial.print('\t');
 	Serial.print(leftWheel.getMotorOutput());
-	Serial.println();
+	Serial.print("\t|\t");*/
+	Serial.print(rightWheel.getDs());
+	Serial.print('\t');
+	Serial.print(rightWheel.getMeasuredSpeed());
+	Serial.print('\t');
+	Serial.println(rightWheel.getMotorOutput());
 }
 
-void plotPID() {
-	plot2(Serial, leftWheel.getMeasuredSpeed()/1000, leftWheel.getMotorOutput());
-	Serial.println();
+void plotPIDcontrol() {
+	/*plot6(Serial, leftWheel.getDs(), (int ) leftWheel.getMeasuredSpeed(),
+			(int ) leftWheel.getMotorOutput(), rightWheel.getDs(),
+			(int ) rightWheel.getMeasuredSpeed(),
+			(int ) rightWheel.getMotorOutput());*/
+}
+
+///////////////////////// ONE CALL FUNCTIONS /////////////////////////
+
+void getNumberOfPinsAviableToSet() {
+	Serial.print("Number of pins available (software coded) to set is: ");
+	Serial.println(PinController::getInstance()->getNumberOfPinsAviable());
 }

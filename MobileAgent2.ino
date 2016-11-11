@@ -8,19 +8,19 @@
 #include "source/Simplot/Simplot.h"
 
 MotorSpeedController rightWheel;
-MotorSpeedController leftWheel;
+//MotorSpeedController leftWheel;
 
 #include "source/commonFunctions.h"
 #include "source/SerialInterpreter.h"
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!! IMPORTANT BEFORE YOU RUN THE PROGRAM !!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!! IMPORTANT BEFORE YOU RUN THE PROGRAM !!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // PLEASE EDIT FILE HardwareSerial.h EDITING TWO FOLLOWING LINES:
 // #define SERIAL_TX_BUFFER_SIZE 120 // 64
 // #define SERIAL_RX_BUFFER_SIZE 120 // 64
 // BIGGER BUFFER IS NEEDED WHILE JSON MESSAGES ARE LONGER THAN 64 CHARACTERS
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 void setup() {
 	Serial.begin(38400);
@@ -30,20 +30,22 @@ void setup() {
 			50);
 	rightWheel.setSetSpeed(1000);
 
-	leftWheel.initializeController(encoder0PinA, encoder0PinB,
-			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.05, 0.002,
-			200);
-	leftWheel.setSetSpeed(1000);
+	//leftWheel.initializeController(encoder0PinA, encoder0PinB,
+	//		leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.05, 0.002,
+	//		50);
+	//leftWheel.setSetSpeed(1000);
 
-	delay(200);
+	//TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
 
-	rightWheel.enableController();
-	leftWheel.enableController();
+	//delay(500);
+
+	//rightWheel.enableController();
+	//leftWheel.enableController();
 }
 
 void loop() {
 
-	leftWheel.controlSpeed();
+	//leftWheel.controlSpeed();
 	rightWheel.controlSpeed();
 
 	TaskManager::getInstance()->realizeTasks();

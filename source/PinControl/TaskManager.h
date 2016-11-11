@@ -9,7 +9,7 @@
 #define TASKMANAGER_H_
 
 // edit carefully to do not to run out of Arduino memory
-#define MAX_NUMBER_OF_TASKS 10
+#define MAX_NUMBER_OF_TASKS 5
 
 #include "ScheduledTask.h"
 

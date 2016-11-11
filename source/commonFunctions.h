@@ -12,13 +12,12 @@
 #include "MotorControl/MotorSpeedController.h"
 #include "Simplot/Simplot.h"
 
-/*void printEncoderValues();
-void printMeasuredSpeed();
-void printControlResults();
-void printAll();*/
-
 void blinkLed();
-void printPID();
-void plotPID();
+void printEncoderValues();
+void plotEncoderValues();
+void printPIDcontrol();
+void plotPIDcontrol();
+
+void getNumberOfPinsAviableToSet();
 
 #endif /* SOURCE_COMMONFUNCTIONS_H_ */

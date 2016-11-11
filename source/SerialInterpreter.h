@@ -14,5 +14,6 @@ bool interpreteMessage(String &json);
 bool interpretePinCTRL(JsonObject& jsonObject);
 bool interpreteTask(JsonObject& jsonObject);
 bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor);
+bool interpreteQuestion(JsonObject& jsonObject);
 
 #endif /* SOURCE_SERIALINTERPRETER_H_ */

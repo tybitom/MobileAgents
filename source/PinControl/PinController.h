@@ -60,6 +60,7 @@ public:
 	int getNumberOfPinsAviable();
 	bool setPinState(uint8_t pinNumber, uint8_t state);
 	bool setPWM(uint8_t pinNumber, int value);
+	const String getTypeAsString(PIN_TYPE type);
 };
 
 #endif /* PINCONTROLLER_H_ */
