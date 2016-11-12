@@ -46,6 +46,8 @@ bool interpreteMessage(String &json) {
 				result = interpretePinCTRL(jsonObject);
 			} else if (msgType == "task") {
 				result = interpreteTask(jsonObject);
+			} else if (msgType == "agent") {
+				result = interpreteAgentCTRL(jsonObject);
 			} else if (msgType == "motorL") {
 				result = interpreteMotorCTRL(jsonObject, true);
 			} else if (msgType == "motorR") {
@@ -58,16 +60,16 @@ bool interpreteMessage(String &json) {
 				result = false;
 			}
 			/*if (!result) {
-				Serial.print("INFO: Readed JSON data: ");
-				for (JsonObject::iterator it = jsonObject.begin();
-						it != jsonObject.end(); ++it) {
-					Serial.print(it->key);
-					Serial.print(": ");
-					Serial.print(it->value.asString());
-					Serial.print(", ");
-				}
-				Serial.println();
-			}*/
+			 Serial.print("INFO: Readed JSON data: ");
+			 for (JsonObject::iterator it = jsonObject.begin();
+			 it != jsonObject.end(); ++it) {
+			 Serial.print(it->key);
+			 Serial.print(": ");
+			 Serial.print(it->value.asString());
+			 Serial.print(", ");
+			 }
+			 Serial.println();
+			 }*/
 		}
 	} else {
 		// Serial.println("Parsing JSON message failed");
@@ -195,6 +197,32 @@ bool interpreteTask(JsonObject& jsonObject) {
 	return result;
 }
 
+bool interpreteAgentCTRL(JsonObject& jsonObject) {
+	bool result = true;
+	String cmd = jsonObject["cmd"];
+	if (cmd == "") {
+		// Serial.println("SEVERE! JSON could not be interpreted. cmd empty! Probably lack of memory on Arduino.");
+		Serial.println("S|SI|iAC|ce"); // cmd empty
+		result = false;
+	} else {
+		if (cmd == "stop") {
+			leftWheel.disableController();
+			leftWheel.stopMotor();
+			rightWheel.disableController();
+			rightWheel.stopMotor();
+		} else if (cmd == "speed") {
+			int val = jsonObject["setSpeed"];
+			leftWheel.setSetSpeed(val);
+			rightWheel.setSetSpeed(val);
+		} else {
+			//Serial.println("SEVERE! Motor control command unknown!");
+			Serial.println("S|SI|iAC|cu"); // command unknown
+			result = false;
+		}
+	}
+	return result;
+}
+
 bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
 	bool result = true;
 	String cmd = jsonObject["cmd"];
@@ -248,7 +276,7 @@ bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
 				rightWheel.setMotorPWMvalue(setpwm);
 			}
 		} else {
-			Serial.println("SEVERE! Motor control command unknown!");
+			//Serial.println("SEVERE! Motor control command unknown!");
 			Serial.println("S|SI|iMC|cu"); // command unknown
 			result = false;
 		}
