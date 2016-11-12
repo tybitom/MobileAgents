@@ -2,25 +2,28 @@
 
 #include "source/Defines.h"
 
+#include "source/MemoryFree/MemoryFree.h"
+
 #include "source/MotorControl/MotorSpeedController.h"
-#include "source/PinControl/ScheduledTask.h"
 #include "source/PinControl/TaskManager.h"
-#include "source/Simplot/Simplot.h"
 
 MotorSpeedController rightWheel;
-//MotorSpeedController leftWheel;
+MotorSpeedController leftWheel;
 
 #include "source/commonFunctions.h"
+
 #include "source/SerialInterpreter.h"
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!! IMPORTANT BEFORE YOU RUN THE PROGRAM !!!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// PLEASE EDIT FILE HardwareSerial.h EDITING TWO FOLLOWING LINES:
-// #define SERIAL_TX_BUFFER_SIZE 120 // 64
-// #define SERIAL_RX_BUFFER_SIZE 120 // 64
+// PLEASE EDIT FILE HardwareSerial.h EDITING THE FOLLOWING LINE:
+// #define SERIAL_RX_BUFFER_SIZE 100 // 64
 // BIGGER BUFFER IS NEEDED WHILE JSON MESSAGES ARE LONGER THAN 64 CHARACTERS
+// MAX_RECEIVED_STRING_LEN set to 100
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+volatile uint8_t counter = 0;
 
 void setup() {
 	Serial.begin(38400);
@@ -28,43 +31,51 @@ void setup() {
 	rightWheel.initializeController(encoder1PinA, encoder1PinB,
 			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.2, 0.05, 0.01,
 			50);
-	rightWheel.setSetSpeed(1000);
+	rightWheel.setSetSpeed(0);
 
-	//leftWheel.initializeController(encoder0PinA, encoder0PinB,
-	//		leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.05, 0.002,
-	//		50);
-	//leftWheel.setSetSpeed(1000);
+	leftWheel.initializeController(encoder0PinA, encoder0PinB,
+			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.05, 0.002,
+			50);
+	leftWheel.setSetSpeed(0);
 
-	//TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
+	Serial.print("I|MA|fm|FM");
+	Serial.println(freeMemory());
 
-	//delay(500);
+	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
 
-	//rightWheel.enableController();
-	//leftWheel.enableController();
+	delay(500);
+
+	rightWheel.enableController();
+	leftWheel.enableController();
 }
 
 void loop() {
 
-	//leftWheel.controlSpeed();
+	leftWheel.controlSpeed();
 	rightWheel.controlSpeed();
 
 	TaskManager::getInstance()->realizeTasks();
+
+	if(counter == 0) {
+		Serial.print("I|MA|fm|FM");
+		Serial.println(freeMemory());
+		counter++;
+	}
 }
 
 void serialEvent() {
 	String inputString;
-	//inputString.reserve(100);
 	inputString = Serial.readString();
-	if(inputString.length() >= 100) {
-		Serial.println("JSON message too long! Over 100 chars!");
+	if(inputString.length() >= MAX_RECEIVED_STRING_LEN) {
+		// Serial.println("JSON message too long! Over 100 chars!");
+		Serial.println("S|MA|sE|tl"); // to long
 	}
 	else if (inputString != "") {
 		Serial.println(inputString);
-		//if (SerialInterpreter::getInstance()->interpreteMessage(inputString)) {
 		if (interpreteMessage(inputString)) {
-			Serial.println("OK");
+			Serial.println("I|MA|sE|OK");
 		} else {
-			Serial.println("NOT OK");
+			Serial.println("S|MA|sE|NOK"); // not ok
 		}
 		inputString = "";
 	}

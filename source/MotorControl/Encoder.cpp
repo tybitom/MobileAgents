@@ -33,7 +33,8 @@ Encoder::Encoder(uint8_t encoderPinA, uint8_t encoderPinB, volatile unsigned lon
 		break;
 	}
 	default: {
-		// log a message that no more encoders can be added
+		// Serial.println("SEVERE! No more encoders can be added!");
+		Serial.println("S|E|E|nme"); // no more encoders
 	}
 	}
 }

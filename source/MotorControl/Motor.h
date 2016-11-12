@@ -33,14 +33,14 @@ public:
 		// pinMode(dirPin, OUTPUT);
 		// digitalWrite(dirPin, LOW); // default value, default direction
 		PinController::getInstance()->setPinUsage(pwmPin, PWM_PIN);
-		PinController::getInstance()->setPinUsage(dirPin, DIGITAL_OUPUT);
+		PinController::getInstance()->setPinUsage(dirPin, DIGITAL_OUTPUT);
 		PinController::getInstance()->setPinState(dirPin, LOW);
 	}
 	void stopMotor() {
 		analogWrite(pwmPin, 0);
 	}
-	void setMotorSpeed(int speed) {
-		analogWrite(pwmPin, speed);
+	void setMotorPWMvalue(int pwm) {
+		analogWrite(pwmPin, pwm);
 	}
 	void changeDirection() {
 		if (digitalRead(dirPin) == LOW)

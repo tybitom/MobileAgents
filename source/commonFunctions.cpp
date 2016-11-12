@@ -8,7 +8,7 @@
 
 #include "Arduino.h"
 
-//extern MotorSpeedController leftWheel;
+extern MotorSpeedController leftWheel;
 extern MotorSpeedController rightWheel;
 
 /////////////// REPEATED FUNCTIONS FOR TASKS ///////////////////////
@@ -21,23 +21,25 @@ void blinkLed() {
 }
 
 void printEncoderValues() {
-	Serial.print("Encoder counter values: L: ");
+	// Serial.print("Encoder counter values: L: ");
+	Serial.print("ECV L: ");
 	//Serial.print(leftWheel.getEncoderCounterValue(), DEC);
 	Serial.print("\tR: ");
 	Serial.println(rightWheel.getEncoderCounterValue(), DEC);
 }
 
 void plotEncoderValues() {
-	//plot2(Serial, leftWheel.getEncoderCounterValue(), rightWheel.getEncoderCounterValue());
+	plot2(Serial, leftWheel.getEncoderCounterValue(), rightWheel.getEncoderCounterValue());
 }
 
 void printPIDcontrol() {
-	/*Serial.print(leftWheel.getDs());
+	Serial.println("PID: ");
+	Serial.print(leftWheel.getDs());
 	Serial.print('\t');
 	Serial.print(leftWheel.getMeasuredSpeed());
 	Serial.print('\t');
 	Serial.print(leftWheel.getMotorOutput());
-	Serial.print("\t|\t");*/
+	Serial.print("\t|\t");
 	Serial.print(rightWheel.getDs());
 	Serial.print('\t');
 	Serial.print(rightWheel.getMeasuredSpeed());
@@ -46,15 +48,16 @@ void printPIDcontrol() {
 }
 
 void plotPIDcontrol() {
-	/*plot6(Serial, leftWheel.getDs(), (int ) leftWheel.getMeasuredSpeed(),
+	plot6(Serial, leftWheel.getDs(), (int ) leftWheel.getMeasuredSpeed(),
 			(int ) leftWheel.getMotorOutput(), rightWheel.getDs(),
 			(int ) rightWheel.getMeasuredSpeed(),
-			(int ) rightWheel.getMotorOutput());*/
+			(int ) rightWheel.getMotorOutput());
 }
 
 ///////////////////////// ONE CALL FUNCTIONS /////////////////////////
 
 void getNumberOfPinsAviableToSet() {
-	Serial.print("Number of pins available (software coded) to set is: ");
+	// Serial.print("Number of pins available (software coded) to set is: ");
+	Serial.print("Npa:");
 	Serial.println(PinController::getInstance()->getNumberOfPinsAviable());
 }

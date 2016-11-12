@@ -22,7 +22,7 @@ private:
 	int checkIfTaskExists(int id);
 public:
 	static TaskManager* getInstance();
-	bool addTask(ScheduledTask task);
+	//bool addTask(ScheduledTask task);
 	bool addTask(int id, unsigned long sampleTime, void (*taskFunction)(void));
 	bool deactivateTask(int id);
 	void realizeTasks();

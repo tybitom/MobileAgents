@@ -16,13 +16,13 @@ PinController* PinController::getInstance() {
 	return pinControllerInstance;
 }
 // Sets pin usage:
-// enum PIN_TYPE {NO_FUNC_PIN,DIGITAL_OUPUT,DIGITAL_INPUT,DIGITAL_INPUT_NO_PULLUP,PWM_PIN,ANALOG_INPUT,ANALOG_OUTPUT}
+// enum PIN_TYPE {NO_FUNC_PIN,DIGITAL_OUTPUT,DIGITAL_INPUT,DIGITAL_INPUT_NO_PULLUP,PWM_PIN,ANALOG_INPUT,ANALOG_OUTPUT}
 bool PinController::setPinUsage(uint8_t pinNumber, PIN_TYPE pinType) {
 	bool result = true;
 	if (pinNumber < NUMBER_OF_PINS_AVIABLE) {
 		pinsUsage[pinNumber] = pinType;
 		switch (pinType) {
-		case DIGITAL_OUPUT: {
+		case DIGITAL_OUTPUT: {
 			pinMode(pinNumber, OUTPUT);
 			break;
 		}
@@ -48,27 +48,30 @@ bool PinController::setPinUsage(uint8_t pinNumber, PIN_TYPE pinType) {
 			break;
 		}
 		default: { // NO_FUNC_PIN
-			Serial.println("SEVERE! No function was assigned to the pin. Wrong type. setPinUsage failed");
+			// Serial.println("SEVERE! No function was assigned to the pin. Wrong type. setPinUsage failed");
+			Serial.println("S|PC|sPU|wt"); // wrong type
 			result = false;
 			break;
 		}
 		}
-		Serial.print("INFO: Pin value was successfully set to ");
-		Serial.println(getTypeAsString(pinType));
+		// Serial.print("INFO: Pin value was successfully set to ");
+		// Serial.println(getTypeAsString(pinType));
+		Serial.println("I|PC|sPU|succ"); // success
 	}
 	else {
-		Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. setPinUsage failed");
+		// Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. setPinUsage failed");
+		Serial.println("S|PC|sPU|pne"); // pin not exist
 		result = false;
 	}
 	return result;
 }
 // Sets pin usage:
-// enum PIN_TYPE {NO_FUNC_PIN,DIGITAL_OUPUT,DIGITAL_INPUT,DIGITAL_INPUT_NO_PULLUP,PWM_PIN,ANALOG_INPUT,ANALOG_OUTPUT}
+// enum PIN_TYPE {NO_FUNC_PIN,DIGITAL_OUTPUT,DIGITAL_INPUT,DIGITAL_INPUT_NO_PULLUP,PWM_PIN,ANALOG_INPUT,ANALOG_OUTPUT}
 bool PinController::setPinUsage(uint8_t pinNumber, String pinType) {
 	bool result = true;
 	if (pinNumber < NUMBER_OF_PINS_AVIABLE) {
-		if (pinType == "DIGITAL_OUPUT") {
-			pinsUsage[pinNumber] = DIGITAL_OUPUT;
+		if (pinType == "DIGITAL_OUTPUT") {
+			pinsUsage[pinNumber] = DIGITAL_OUTPUT;
 			pinMode(pinNumber, OUTPUT);
 		} else if (pinType == "DIGITAL_INPUT") {
 			pinsUsage[pinNumber] = DIGITAL_INPUT;
@@ -87,26 +90,30 @@ bool PinController::setPinUsage(uint8_t pinNumber, String pinType) {
 			pinsUsage[pinNumber] = ANALOG_OUTPUT;
 			pinMode(pinNumber, OUTPUT);
 		} else { // NO_FUNC_PIN
-			Serial.println("SEVERE! No function was assigned to the pin. Wrong type. setPinUsage failed");
+			// Serial.println("SEVERE! No function was assigned to the pin. Wrong type. setPinUsage failed");
+			Serial.println("S_PC_sPU_wt"); // wrong type
 			result = false;
 		}
-		Serial.print("INFO: Pin value was successfully set to ");
-		Serial.println(pinType);
+		// Serial.print("INFO: Pin value was successfully set to ");
+		// Serial.println(pinType);
+		Serial.println("S_PC_sPU_succ"); // success
 	}
 	else {
-		Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. setPinUsage failed");
+		// Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. setPinUsage failed");
+		Serial.println("S_PC_sPU_pne"); // pin not exist
 		result = false;
 	}
 	return result;
 }
 // Returns pin usage:
-// enum PIN_TYPE {NO_FUNC_PIN,DIGITAL_OUPUT,DIGITAL_INPUT,DIGITAL_INPUT_NO_PULLUP,PWM_PIN,ANALOG_INPUT,ANALOG_OUTPUT}
+// enum PIN_TYPE {NO_FUNC_PIN,DIGITAL_OUTPUT,DIGITAL_INPUT,DIGITAL_INPUT_NO_PULLUP,PWM_PIN,ANALOG_INPUT,ANALOG_OUTPUT}
 PIN_TYPE PinController::getPinUsage(uint8_t pinNumber) {
 	if (pinNumber < NUMBER_OF_PINS_AVIABLE) {
 		return pinsUsage[pinNumber];
 	}
 	else {
-		Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. getPinUsage failed");
+		// Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. getPinUsage failed");
+		Serial.println("S|PC|gPU|pne"); // pin not exist
 	}
 	return NO_FUNC_PIN;
 }
@@ -118,37 +125,46 @@ int PinController::getNumberOfPinsAviable() {
 // Sets pin value. State can be LOW or HIGH.
 bool PinController::setPinState(uint8_t pinNumber, uint8_t state) {
 	if (pinNumber < NUMBER_OF_PINS_AVIABLE) {
-		if (pinsUsage[pinNumber] == DIGITAL_OUPUT) {
-			Serial.print("WARNING! Changing pin ");
-			Serial.print(pinNumber);
-			Serial.print(" value from ");
-			Serial.print(getTypeAsString(pinsUsage[pinNumber]));
-			Serial.print(" to DIGITAL_OUPUT.");
-			setPinUsage(pinNumber, DIGITAL_OUPUT);
+		if (pinsUsage[pinNumber] != DIGITAL_OUTPUT) {
+			// Serial.print("WARNING! Changing pin ");
+			// Serial.print(pinNumber);
+			// Serial.print(" value from ");
+			// Serial.print(getTypeAsString(pinsUsage[pinNumber]));
+			// Serial.println(" to DIGITAL_OUTPUT.");
+			// setPinUsage(pinNumber, DIGITAL_OUTPUT);
+			Serial.print("W|PC|sPS|ch");
+			Serial.println(pinsUsage[pinNumber]);
 		}
 		digitalWrite(pinNumber, state);
 		return true;
 	}
-	Serial.print("SEVERE! Wrong pin number. There are not so many pins are available. setPinState failed");
+	// Serial.print("SEVERE! Wrong pin number. There are not so many pins are available. setPinState failed");
+	Serial.println("S_PC_sPS_pne"); // pin not exist
 	return false;
 }
 // Pin needs to be initialized firstly by function setPinUsage(uint8_t pinNumber, PIN_TYPE pinType)
 // Sets pin pwm output.
 bool PinController::setPWM(uint8_t pinNumber, int value) {
 	if (pinNumber < NUMBER_OF_PINS_AVIABLE) {
-		if ((pinsUsage[pinNumber] == PWM_PIN)
-				|| (pinsUsage[pinNumber] == ANALOG_OUTPUT)) {
-			Serial.print("WARNING! Changing pin ");
-			Serial.print(pinNumber);
-			Serial.print(" value from ");
-			Serial.print(getTypeAsString(pinsUsage[pinNumber]));
-			Serial.print(" to PWM_PIN.");
+		if (!((pinsUsage[pinNumber] == PWM_PIN)
+				|| (pinsUsage[pinNumber] == ANALOG_OUTPUT))) {
+			// Serial.print("WARNING! Changing pin ");
+			// Serial.print(pinNumber);
+			// Serial.print(" value from ");
+			// Serial.print(getTypeAsString(pinsUsage[pinNumber]));
+			// Serial.print(" to PWM_PIN.");
+			Serial.print("W|PC|sPWM|ch");
+			Serial.print(pinsUsage[pinNumber]);
+			Serial.print('|');
+			Serial.println(PWM_PIN);
+
 			setPinUsage(pinNumber, PWM_PIN);
 		}
 		analogWrite(pinNumber, value);
 		return true;
 	}
-	Serial.print("SEVERE! Wrong pin number. There are not so many pins are available. setPWM failed");
+	// Serial.print("SEVERE! Wrong pin number. There are not so many pins are available. setPWM failed");
+	Serial.println("S|PC|sPWM|pne"); // pin not exist
 	return false;
 }
 
@@ -157,8 +173,8 @@ const String PinController::getTypeAsString(PIN_TYPE type) {
 	case NO_FUNC_PIN: {
 		return "NO_FUNC_PIN";
 	}
-	case DIGITAL_OUPUT: {
-		return "DIGITAL_OUPUT";
+	case DIGITAL_OUTPUT: {
+		return "DIGITAL_OUTPUT";
 	}
 	case DIGITAL_INPUT: {
 		return "DIGITAL_INPUT";

@@ -8,12 +8,8 @@
 #ifndef MOTORSPEEDCONTROLLER_H_
 #define MOTORSPEEDCONTROLLER_H_
 
-//#include "elapsedMillis.h"
-//#include <PID_v1.h>
-
 #include "Encoder.h"
 #include "Motor.h"
-#include "../Simplot/Simplot.h"
 
 #define outMax 250
 #define outMin 0
@@ -51,167 +47,28 @@ private:
 public:
 	void initializeController(uint8_t encPinA, uint8_t encPinB,
 			volatile unsigned long &encoderCounter, uint8_t motPinPWM,
-			uint8_t motPinDIR, double kp, double ki, double kd,
-			int sampleTime) {
-		encoder = initializeEncoder(encPinA, encPinB, encoderCounter);
-		motor = new Motor(motPinPWM, motPinDIR);
-
-		Kp = kp;
-		Kd = ki;
-		Ki = kd;
-
-		this->sampleTime = sampleTime;
-
-		ITerm = 0;
-
-		lastTime = millis() - sampleTime;
-		Serial.println("INFO: Motor controller was successfully initialized!");
-	}
-
-	void controlSpeed() {
-		if (controlState == CONTROL_ENABLED) {
-			unsigned long now = millis();
-			int timeChange = (now - lastTime);
-			if (timeChange >= sampleTime) {
-				unsigned long encoderCounterValue = encoder->getCounterValue();
-
-				if(timeChange > (1.5 * sampleTime)) {
-					Serial.println("WARNING! dt for control speed was higher than (1,5 * sampleTime).");
-				}
-
-				ds = encoderCounterValue - encoderPreviousValue;
-				measuredSpeed = (ds) * (1000.0 / timeChange); // [imp/s]
-
-				lastTime = now;
-
-				encoderPreviousValue = encoderCounterValue;
-
-				// Real PID regulation calculation:
-				double error = setSpeed - measuredSpeed;
-				ITerm += (Ki * error);
-				if (ITerm > outMax) {
-					ITerm = outMax;
-				} else if (ITerm < outMin) {
-					ITerm = outMin;
-				}
-
-				// Compute PID Output:
-				motorOutput = Kp * error + ITerm
-						- Kd * (measuredSpeed - lastMeasuredSpeed);
-
-				if (motorOutput > outMax) {
-					motorOutput = outMax;
-				} else if (motorOutput < outMin) {
-					motorOutput = outMin;
-				}
-
-				lastMeasuredSpeed = measuredSpeed;
-
-				motor->setMotorSpeed(motorOutput);
-			}
-		}
-	}
-
-	unsigned long getEncoderCounterValue() const {
-		if (controlState == CONTROL_ENABLED) {
-			return encoder->getCounterValue();
-		}
-		return 0;
-	}
-
-	double getKd() const {
-		return Kd;
-	}
-
-	void setKd(double kd = 0.01) {
-		Kd = kd;
-	}
-
-	double getKi() const {
-		return Ki;
-	}
-
-	void setKi(double ki = 0.2) {
-		Ki = ki;
-	}
-
-	double getKp() const {
-		return Kp;
-	}
-
-	void setKp(double kp = 0.6) {
-		Kp = kp;
-	}
-
-	void setPIDParameters(double kp, double ki, double kd) {
-		Kp = kp;
-		Ki = ki;
-		Kd = kd;
-		Serial.println("INFO: Parameters set to ");
-		Serial.print(kp);
-		Serial.print(", ");
-		Serial.print(ki);
-		Serial.print(", ");
-		Serial.print(kd);
-		Serial.println('.');
-	}
-
-	// sets the frequency, in Milliseconds, with which
-	// the PID calculation is performed.  default is 100
-	void setSampleTime(int sampleTime) {
-		this->sampleTime = sampleTime;
-	}
-
-	double getMeasuredSpeed() const {
-		return measuredSpeed;
-	}
-
-	double getMotorOutput() const {
-		return motorOutput;
-	}
-
-	double getSetSpeed() const {
-		return setSpeed;
-	}
-
-	void setSetSpeed(double setSpeed) {
-		if (setSpeed >= 0) {
-			motor->changeDirection();
-			this->setSpeed = setSpeed;
-		} else {
-			this->setSpeed = (-1) * setSpeed;
-		}
-	}
-
-	void changeMotorDirection() {
-		motor->changeDirection();
-	}
-
-	void stopMotor() {
-		motor->stopMotor();
-	}
-
-	String getControlState() {
-		if (controlState == CONTROL_ENABLED) {
-			return "CONTROL_ENABLED";
-		}
-		return "CONTROL_DISABLED";
-	}
-
-	void enableController() {
-		encoderPreviousValue = encoder->getCounterValue();
-		lastMeasuredSpeed = measuredSpeed; // because, when controller is disabled, motor speed is 0
-		ITerm = motorOutput;
-		controlState = CONTROL_ENABLED;
-	}
-
-	void disableController() {
-		controlState = CONTROL_DISABLED;
-	}
-
-	int getDs() const {
-		return ds;
-	}
+			uint8_t motPinDIR, double kp, double ki, double kd, int sampleTime);
+	void controlSpeed();
+	unsigned long getEncoderCounterValue() const;
+	double getKd() const;
+	void setKd(double kd = 0.01);
+	double getKi() const;
+	void setKi(double ki = 0.2);
+	double getKp() const;
+	void setKp(double kp = 0.6);
+	void setPIDParameters(double kp, double ki, double kd);
+	void setSampleTime(int sampleTime);
+	double getMeasuredSpeed() const;
+	double getMotorOutput() const;
+	double getSetSpeed() const;
+	void setSetSpeed(double setSpeed);
+	void setMotorPWMvalue(int val);
+	void changeMotorDirection();
+	void stopMotor();
+	String getControlState();
+	void enableController();
+	void disableController();
+	int getDs() const;
 };
 
 #endif /* MOTORSPEEDCONTROLLER_H_ */

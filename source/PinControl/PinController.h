@@ -37,7 +37,7 @@
 // analog pins can be set to an output (https://www.arduino.cc/en/Tutorial/AnalogInputPins)
 enum PIN_TYPE {
 	NO_FUNC_PIN,
-	DIGITAL_OUPUT,
+	DIGITAL_OUTPUT,
 	DIGITAL_INPUT,
 	DIGITAL_INPUT_NO_PULLUP,
 	PWM_PIN,
