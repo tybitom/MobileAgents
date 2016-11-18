@@ -17,6 +17,7 @@ void printEncoderValues();
 void plotEncoderValues();
 void printPIDcontrol();
 void plotPIDcontrol();
+void printFreeMemory();
 
 void getNumberOfPinsAviableToSet();
 

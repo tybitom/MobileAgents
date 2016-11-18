@@ -12,6 +12,8 @@
 #include "PinControl/PinController.h"
 #include "PinControl/TaskManager.h"
 
+#include "JSONinterpreter.h"
+
 extern MotorSpeedController leftWheel;
 extern MotorSpeedController rightWheel;
 
@@ -33,87 +35,89 @@ extern MotorSpeedController rightWheel;
 // }
 bool interpreteMessage(String &json) {
 	bool result = true;
-	StaticJsonBuffer<170> jsonBuffer;
-	JsonObject& jsonObject = jsonBuffer.parseObject(json);
-	if (jsonObject.success()) {
-		const String msgType = jsonObject["type"].asString();
-		if (msgType == "") {
-			//Serial.println("SEVERE! JSON could not be interpreted. msgType empty! Probably lack of memory on Arduino.");
-			Serial.println("S|SI|iM|te"); // type empty
-			result = false;
-		} else {
-			if (msgType == "pinCTRL") {
-				result = interpretePinCTRL(jsonObject);
-			} else if (msgType == "task") {
-				result = interpreteTask(jsonObject);
-			} else if (msgType == "agent") {
-				result = interpreteAgentCTRL(jsonObject);
-			} else if (msgType == "motorL") {
-				result = interpreteMotorCTRL(jsonObject, true);
-			} else if (msgType == "motorR") {
-				result = interpreteMotorCTRL(jsonObject, false);
-			} else if (msgType == "quest") {
-				result = interpreteQuestion(jsonObject);
-			} else {
-				// Serial.println("SEVERE! JSON type unknown! ");
-				Serial.println("S|SI|iM|tu"); // type unknown
-				result = false;
-			}
-			/*if (!result) {
-			 Serial.print("INFO: Readed JSON data: ");
-			 for (JsonObject::iterator it = jsonObject.begin();
-			 it != jsonObject.end(); ++it) {
-			 Serial.print(it->key);
-			 Serial.print(": ");
-			 Serial.print(it->value.asString());
-			 Serial.print(", ");
-			 }
-			 Serial.println();
-			 }*/
-		}
-	} else {
-		// Serial.println("Parsing JSON message failed");
-		Serial.println("S|SI|iM|pf"); // parsing failed
+	uint8_t pos = 0;
+	String key, value;
+
+	if (!getNext(json, pos, key, value) && key == "type") {
+		//Serial.println("SEVERE! JSON could not be interpreted. msgType empty! Probably lack of memory on Arduino.");
+		Serial.println("S|SI|iM|te"); // type empty
 		result = false;
+	} else {
+		if (value == "pinCTRL") {
+			result = interpretePinCTRL(json, pos, key, value);
+		} else if (value == "task") {
+			result = interpreteTask(json, pos, key, value);
+		} else if (value == "agent") {
+			result = interpreteAgentCTRL(json, pos, key, value);
+		} else if (value == "motorL") {
+		 result = interpreteMotorCTRL(json, pos, key, value, true);
+		 } else if (value == "motorR") {
+		 result = interpreteMotorCTRL(json, pos, key, value, false);
+		 } else if (value == "quest") {
+			result = interpreteQuestion(json, pos, key, value);
+		} else {
+			// Serial.println("SEVERE! JSON type unknown! ");
+			Serial.println("S|SI|iM|tu"); // type unknown
+			Serial.print(key);
+			Serial.print(": ");
+			Serial.println(value);
+			result = false;
+		}
+		/*if (!result) {
+		 Serial.print("INFO: Readed JSON data: ");
+		 for (JsonObject::iterator it = jsonObject.begin();
+		 it != jsonObject.end(); ++it) {
+		 Serial.print(it->key);
+		 Serial.print(": ");
+		 Serial.print(it->value.asString());
+		 Serial.print(", ");
+		 }
+		 Serial.println();
+		 }*/
 	}
 	return result;
 }
 
-bool interpretePinCTRL(JsonObject& jsonObject) {
+bool interpretePinCTRL(const String &json, uint8_t &pos, String &key,
+		String &value) {
 	bool result = true;
-	String fun = jsonObject["fun"]; // fun like function
-	if (fun == "") {
-		// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
+
+	if (!getNext(json, pos, key, value) && key == "fun") { // fun like function
+	// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
 		Serial.println("S|SI|iPC|fe"); // fun empty
 		result = false;
 	} else {
-		if (fun == "setPinUsage") {
-			uint8_t pinNumber = jsonObject["pinNumber"];
-			String pinType = jsonObject["pinType"];
-			if (pinType == "") {
+		if (value == "setPinUsage") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			uint8_t pinNumber = atoi(value.c_str());
+			if (!getNext(json, pos, key, value) && key == "pinType") {
 				// Serial.println("SEVERE! JSON could not be interpreted. pinType empty! Probably lack of memory on Arduino.");
 				Serial.println("S|SI|iPC|pTe"); // pinType empty
 				result = false;
 			} else {
 				if (!PinController::getInstance()->setPinUsage(pinNumber,
-						pinType)) {
+						value)) {
 					// Serial.println("SEVERE! Pin Usage could not be set!");
 					Serial.println("S|SI|iPC|pus"); // Pin Usage could not be set
 					result = false;
 				}
 			}
-		} else if (fun == "setPinState") {
-			uint8_t pinNumber = jsonObject["pinNumber"];
-			uint8_t state = jsonObject["state"];
+		} else if (value == "setPinState") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			uint8_t pinNumber = atoi(value.c_str());
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			uint8_t state = atoi(value.c_str());
 			if (!PinController::getInstance()->setPinState(pinNumber, state)) {
 				// Serial.println("SEVERE! Pin State could not be set!");
 				Serial.println("S|SI|iPC|pss"); // Pin State could not be set
 				result = false;
 			}
-		} else if (fun == "setPWM") {
-			uint8_t pinNumber = jsonObject["pinNumber"];
-			int value = jsonObject["value"];
-			if (!PinController::getInstance()->setPWM(pinNumber, value)) {
+		} else if (value == "setPWM") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			uint8_t pinNumber = atoi(value.c_str());
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			int pwmValue = atoi(value.c_str());
+			if (!PinController::getInstance()->setPWM(pinNumber, pwmValue)) {
 				// Serial.println("SEVERE! PWM value could not be set!");
 				Serial.println("S|SI|iPC|PWMs"); // PWM could not be set
 				result = false;
@@ -127,18 +131,23 @@ bool interpretePinCTRL(JsonObject& jsonObject) {
 	return result;
 }
 
-bool interpreteTask(JsonObject& jsonObject) {
+bool interpreteTask(const String &json, uint8_t &pos, String &key,
+		String &value) {
 	bool result = true;
-	bool activateTask = jsonObject["activateTask"];
-	if (activateTask) {
-		String fun = jsonObject["fun"]; // fun like function
-		if (fun == "") {
-			// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
+	getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+
+	if (atoi(value.c_str()) != 0) {
+		getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+		int id = atoi(value.c_str());
+
+		if (!getNext(json, pos, key, value) && key == "fun") { // fun like function
+		// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
 			Serial.println("S|SI|iT|fe"); // fun empty
 			result = false;
 		} else {
-			int id = jsonObject["id"];
-			unsigned long sampleTime = jsonObject["sampleTime"];
+			String fun = value;
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			unsigned long sampleTime = atoi(value.c_str());
 
 			if (fun == "blinkLed") {
 				if (!TaskManager::getInstance()->addTask(id, sampleTime,
@@ -182,7 +191,8 @@ bool interpreteTask(JsonObject& jsonObject) {
 			}
 		}
 	} else {
-		int id = jsonObject["id"];
+		getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+		uint8_t id = atoi(value.c_str());
 		if (TaskManager::getInstance()->deactivateTask(id)) {
 			result = true;
 		} else {
@@ -197,23 +207,40 @@ bool interpreteTask(JsonObject& jsonObject) {
 	return result;
 }
 
-bool interpreteAgentCTRL(JsonObject& jsonObject) {
+bool interpreteAgentCTRL(const String &json, uint8_t &pos, String &key,
+		String &value) {
 	bool result = true;
-	String cmd = jsonObject["cmd"];
-	if (cmd == "") {
+
+	if (!getNext(json, pos, key, value) && key == "cmd") {
 		// Serial.println("SEVERE! JSON could not be interpreted. cmd empty! Probably lack of memory on Arduino.");
 		Serial.println("S|SI|iAC|ce"); // cmd empty
 		result = false;
 	} else {
-		if (cmd == "stop") {
+		if (value == "stop") {
 			leftWheel.disableController();
+			leftWheel.clearITerm();
 			leftWheel.stopMotor();
+
 			rightWheel.disableController();
+			rightWheel.clearITerm();
 			rightWheel.stopMotor();
-		} else if (cmd == "speed") {
-			int val = jsonObject["setSpeed"];
-			leftWheel.setSetSpeed(val);
-			rightWheel.setSetSpeed(val);
+		} else if (value == "speed") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			int val = atoi(value.c_str());
+			if (val == 0) {
+				leftWheel.disableController();
+				leftWheel.clearITerm();
+				leftWheel.stopMotor();
+
+				rightWheel.disableController();
+				rightWheel.clearITerm();
+				rightWheel.stopMotor();
+			} else {
+				leftWheel.setSetSpeed(val);
+				leftWheel.enableController();
+				rightWheel.setSetSpeed(val);
+				rightWheel.enableController();
+			}
 		} else {
 			//Serial.println("SEVERE! Motor control command unknown!");
 			Serial.println("S|SI|iAC|cu"); // command unknown
@@ -223,16 +250,18 @@ bool interpreteAgentCTRL(JsonObject& jsonObject) {
 	return result;
 }
 
-bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
+bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
+		String &value, bool leftMotor) {
 	bool result = true;
-	String cmd = jsonObject["cmd"];
-	if (cmd == "") {
+
+	if (!getNext(json, pos, key, value) && key == "cmd") {
 		// Serial.println("SEVERE! JSON could not be interpreted. cmd empty! Probably lack of memory on Arduino.");
 		Serial.println("S|SI|iMC|ce"); // cmd empty
 		result = false;
 	} else {
-		if (cmd == "state") {
-			bool activate = jsonObject["activate"];
+		if (value == "state") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			bool activate = atoi(value.c_str());
 			if (activate) {
 				if (leftMotor) {
 					leftWheel.enableController();
@@ -248,11 +277,15 @@ bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
 					rightWheel.stopMotor();
 				}
 			}
-		} else if (cmd == "PID") {
-			double kp = jsonObject["kp"];
-			double ki = jsonObject["ki"];
-			double kd = jsonObject["kd"];
-			int sampleTime = jsonObject["dt"];
+		} else if (value == "PID") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			double kp = atof(value.c_str());
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			double ki = atof(value.c_str());
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			double kd = atof(value.c_str());
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			int sampleTime = atoi(value.c_str());
 			//Serial.println("INFO: Setting new PID parameters...");
 			if (leftMotor) {
 				leftWheel.setPIDParameters(kp, ki, kd);
@@ -261,15 +294,17 @@ bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
 				rightWheel.setPIDParameters(kp, ki, kd);
 				rightWheel.setSampleTime(sampleTime);
 			}
-		} else if (cmd == "speed") {
-			int setSpeed = jsonObject["setSpeed"];
+		} else if (value == "speed") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			int setSpeed = atoi(value.c_str());
 			if (leftMotor) {
 				leftWheel.setSetSpeed(setSpeed);
 			} else {
 				rightWheel.setSetSpeed(setSpeed);
 			}
-		} else if (cmd == "pwm") {
-			int setpwm = jsonObject["setPWM"];
+		} else if (value == "pwm") {
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			int setpwm = atoi(value.c_str());
 			if (leftMotor) {
 				leftWheel.setMotorPWMvalue(setpwm);
 			} else {
@@ -284,24 +319,27 @@ bool interpreteMotorCTRL(JsonObject& jsonObject, bool leftMotor) {
 	return result;
 }
 
-bool interpreteQuestion(JsonObject& jsonObject) {
+bool interpreteQuestion(const String &json, uint8_t &pos, String &key,
+		String &value) {
 	bool result = true;
-	String fun = jsonObject["fun"];
-	if (fun == "") {
-		// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
+
+	if (!getNext(json, pos, key, value) && key == "fun") { // fun like function
+	// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
 		Serial.println("S|SI|iQ|fe"); // fun empty
 		result = false;
 	} else {
-		if (fun == "printEncoderValues") {
+		if (value == "printEncoderValues") {
 			printEncoderValues();
-		} else if (fun == "plotEncoderValues") {
+		} else if (value == "plotEncoderValues") {
 			plotEncoderValues();
-		} else if (fun == "printPIDcontrol") {
+		} else if (value == "printPIDcontrol") {
 			printPIDcontrol();
-		} else if (fun == "plotPIDcontrol") {
+		} else if (value == "plotPIDcontrol") {
 			plotPIDcontrol();
-		} else if (fun == "getNumberOfPinsAviableToSet") {
+		} else if (value == "getNumberOfPinsAviableToSet") {
 			getNumberOfPinsAviableToSet();
+		} else if (value == "RAM") {
+			printFreeMemory();
 		} else {
 			// Serial.println("SEVERE! Function unknown!");
 			Serial.println("S|SI|iQ|fu"); // fun unknown

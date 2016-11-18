@@ -2,13 +2,11 @@
 
 #include "source/Defines.h"
 
-#include "source/MemoryFree/MemoryFree.h"
-
 #include "source/MotorControl/MotorSpeedController.h"
 #include "source/PinControl/TaskManager.h"
 
-MotorSpeedController rightWheel;
 MotorSpeedController leftWheel;
+MotorSpeedController rightWheel;
 
 #include "source/commonFunctions.h"
 
@@ -28,25 +26,26 @@ volatile uint8_t counter = 0;
 void setup() {
 	Serial.begin(38400);
 
+	PinController::getInstance()->setPinUsage(LED_BUILTIN, DIGITAL_OUTPUT);
+
+	leftWheel.initializeController(encoder0PinA, encoder0PinB,
+			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.2, 0.05, 0.001,
+			50);
+	leftWheel.setSetSpeed(0);
+
 	rightWheel.initializeController(encoder1PinA, encoder1PinB,
 			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.2, 0.05, 0.01,
 			50);
 	rightWheel.setSetSpeed(0);
 
-	leftWheel.initializeController(encoder0PinA, encoder0PinB,
-			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.05, 0.002,
-			50);
-	leftWheel.setSetSpeed(0);
-
-	Serial.print("I|MA|fm|FM");
-	Serial.println(freeMemory());
+	printFreeMemory();
 
 	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
 
 	delay(500);
 
-	rightWheel.enableController();
 	leftWheel.enableController();
+	rightWheel.enableController();
 }
 
 void loop() {
@@ -57,8 +56,7 @@ void loop() {
 	TaskManager::getInstance()->realizeTasks();
 
 	if(counter == 0) {
-		Serial.print("I|MA|fm|FM");
-		Serial.println(freeMemory());
+		printFreeMemory();
 		counter++;
 	}
 }
@@ -76,6 +74,7 @@ void serialEvent() {
 			Serial.println("I|MA|sE|OK");
 		} else {
 			Serial.println("S|MA|sE|NOK"); // not ok
+			printFreeMemory();
 		}
 		inputString = "";
 	}

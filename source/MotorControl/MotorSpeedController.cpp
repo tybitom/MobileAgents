@@ -36,7 +36,7 @@ void MotorSpeedController::controlSpeed() {
 
 			if (timeChange > (1.5 * sampleTime)) {
 				// Serial.println("WARNING! dt for control speed was higher than (1,5 * sampleTime).");
-				Serial.println("W|MSP|cS|dth"); // dt to high
+				Serial.println("W|MSC|cS|dth"); // dt to long
 			}
 
 			ds = encoderCounterValue - encoderPreviousValue;
@@ -73,10 +73,7 @@ void MotorSpeedController::controlSpeed() {
 }
 
 unsigned long MotorSpeedController::getEncoderCounterValue() const {
-	if (controlState == CONTROL_ENABLED) {
-		return encoder->getCounterValue();
-	}
-	return 0;
+	return encoder->getCounterValue();
 }
 
 double MotorSpeedController::getKd() const {
@@ -177,4 +174,12 @@ void MotorSpeedController::disableController() {
 
 int MotorSpeedController::MotorSpeedController::getDs() const {
 	return ds;
+}
+
+void MotorSpeedController::clearITerm() {
+	ITerm = 0;
+	lastMeasuredSpeed = 0;
+	ds = 0;
+	measuredSpeed = 0;
+	motorOutput = 0;
 }

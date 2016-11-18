@@ -5,6 +5,7 @@
  *      Author: TTYBISZE
  */
 #include "commonFunctions.h"
+#include "MemoryFree/MemoryFree.h"
 
 #include "Arduino.h"
 
@@ -14,16 +15,13 @@ extern MotorSpeedController rightWheel;
 /////////////// REPEATED FUNCTIONS FOR TASKS ///////////////////////
 
 void blinkLed() {
-	PinController::getInstance()->setPinState(LED_BUILTIN, HIGH);
-	delay(300);
-	PinController::getInstance()->setPinState(LED_BUILTIN, LOW);
-	delay(300);
+	PinController::getInstance()->setPinState(LED_BUILTIN, !PinController::getInstance()->getPinValue(LED_BUILTIN));
 }
 
 void printEncoderValues() {
 	// Serial.print("Encoder counter values: L: ");
 	Serial.print("ECV L: ");
-	//Serial.print(leftWheel.getEncoderCounterValue(), DEC);
+	Serial.print(leftWheel.getEncoderCounterValue(), DEC);
 	Serial.print("\tR: ");
 	Serial.println(rightWheel.getEncoderCounterValue(), DEC);
 }
@@ -33,7 +31,7 @@ void plotEncoderValues() {
 }
 
 void printPIDcontrol() {
-	Serial.println("PID: ");
+	Serial.print("PID: ");
 	Serial.print(leftWheel.getDs());
 	Serial.print('\t');
 	Serial.print(leftWheel.getMeasuredSpeed());
@@ -54,10 +52,20 @@ void plotPIDcontrol() {
 			(int ) rightWheel.getMotorOutput());
 }
 
+void printPinValue(uint8_t pinNumber) {
+	Serial.print("PV: ");
+	Serial.println(PinController::getInstance()->getPinValue(pinNumber));
+}
+
 ///////////////////////// ONE CALL FUNCTIONS /////////////////////////
 
 void getNumberOfPinsAviableToSet() {
 	// Serial.print("Number of pins available (software coded) to set is: ");
-	Serial.print("Npa:");
+	Serial.print("NPA: ");
 	Serial.println(PinController::getInstance()->getNumberOfPinsAviable());
+}
+
+void printFreeMemory() {
+	Serial.print("I|cF|fm|FM");
+	Serial.println(freeMemory());
 }

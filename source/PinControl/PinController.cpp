@@ -57,8 +57,7 @@ bool PinController::setPinUsage(uint8_t pinNumber, PIN_TYPE pinType) {
 		// Serial.print("INFO: Pin value was successfully set to ");
 		// Serial.println(getTypeAsString(pinType));
 		Serial.println("I|PC|sPU|succ"); // success
-	}
-	else {
+	} else {
 		// Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. setPinUsage failed");
 		Serial.println("S|PC|sPU|pne"); // pin not exist
 		result = false;
@@ -97,8 +96,7 @@ bool PinController::setPinUsage(uint8_t pinNumber, String pinType) {
 		// Serial.print("INFO: Pin value was successfully set to ");
 		// Serial.println(pinType);
 		Serial.println("S_PC_sPU_succ"); // success
-	}
-	else {
+	} else {
 		// Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. setPinUsage failed");
 		Serial.println("S_PC_sPU_pne"); // pin not exist
 		result = false;
@@ -110,8 +108,7 @@ bool PinController::setPinUsage(uint8_t pinNumber, String pinType) {
 PIN_TYPE PinController::getPinUsage(uint8_t pinNumber) {
 	if (pinNumber < NUMBER_OF_PINS_AVIABLE) {
 		return pinsUsage[pinNumber];
-	}
-	else {
+	} else {
 		// Serial.println("SEVERE! Wrong pin number. There are not so many pins are available. getPinUsage failed");
 		Serial.println("S|PC|gPU|pne"); // pin not exist
 	}
@@ -133,7 +130,11 @@ bool PinController::setPinState(uint8_t pinNumber, uint8_t state) {
 			// Serial.println(" to DIGITAL_OUTPUT.");
 			// setPinUsage(pinNumber, DIGITAL_OUTPUT);
 			Serial.print("W|PC|sPS|ch");
-			Serial.println(pinsUsage[pinNumber]);
+			Serial.print(pinsUsage[pinNumber]);
+			Serial.print('|');
+			Serial.println(DIGITAL_OUTPUT);
+
+			pinsUsage[pinNumber] = DIGITAL_OUTPUT;
 		}
 		digitalWrite(pinNumber, state);
 		return true;
@@ -142,6 +143,26 @@ bool PinController::setPinState(uint8_t pinNumber, uint8_t state) {
 	Serial.println("S_PC_sPS_pne"); // pin not exist
 	return false;
 }
+
+int PinController::getPinValue(uint8_t pinNumber) {
+	if (pinNumber < NUMBER_OF_PINS_AVIABLE) {
+		if ((pinsUsage[pinNumber] == DIGITAL_OUTPUT)
+				|| (pinsUsage[pinNumber] == DIGITAL_INPUT_NO_PULLUP)) {
+			return digitalRead(pinNumber);
+		} else if ((pinsUsage[pinNumber] == PWM_PIN)
+				|| (pinsUsage[pinNumber] == ANALOG_OUTPUT)) {
+			return analogRead(pinNumber);
+		} else {
+			Serial.print("S|PC|gPV|wt"); // wrong type
+			Serial.println(pinsUsage[pinNumber]);
+		}
+		return -1;
+	}
+	// Serial.print("SEVERE! Wrong pin number. There are not so many pins are available. setPinState failed");
+	Serial.println("S_PC_gPV_pne"); // pin not exist
+	return false;
+}
+
 // Pin needs to be initialized firstly by function setPinUsage(uint8_t pinNumber, PIN_TYPE pinType)
 // Sets pin pwm output.
 bool PinController::setPWM(uint8_t pinNumber, int value) {

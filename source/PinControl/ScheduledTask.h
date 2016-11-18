@@ -12,7 +12,7 @@
 
 class ScheduledTask {
 private:
-	int id;
+	uint8_t id;
 	bool activated;
 	unsigned long sampleTime; // sampling time in milliseconds
 	void (*functionPointer)();
@@ -26,7 +26,7 @@ public:
 		lastTime = -1;
 		activated = false;
 	}
-	ScheduledTask(int id, unsigned long sampleTime, void (*taskFunction)(void)) {
+	ScheduledTask(uint8_t id, unsigned long sampleTime, void (*taskFunction)(void)) {
 		this->id = id;
 		this->sampleTime = sampleTime;
 		functionPointer = taskFunction;
@@ -47,7 +47,7 @@ public:
 		}
 		return false;
 	}
-	bool getId() const{
+	uint8_t getId() const{
 		return id;
 	}
 

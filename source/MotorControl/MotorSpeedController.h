@@ -69,6 +69,7 @@ public:
 	void enableController();
 	void disableController();
 	int getDs() const;
+	void clearITerm();
 };
 
 #endif /* MOTORSPEEDCONTROLLER_H_ */

@@ -7,7 +7,7 @@
 
 #include "TaskManager.h"
 
-int TaskManager::taskCounter = 0;
+uint8_t TaskManager::taskCounter = 0;
 TaskManager *TaskManager::taskManagerInstance = nullptr;
 
 TaskManager* TaskManager::getInstance() {
@@ -36,7 +36,7 @@ TaskManager* TaskManager::getInstance() {
 
 // adds task to the task list run every sampleTime in milliseconds
 // and function realizeTasks() method is called
-bool TaskManager::addTask(int id, unsigned long sampleTime,
+bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,
 		void (*taskFunction)(void)) {
 	bool result = false;
 	int indexOfExistingTask = checkIfTaskExists(id);
@@ -47,7 +47,8 @@ bool TaskManager::addTask(int id, unsigned long sampleTime,
 		result = true;
 	} else if (taskCounter < MAX_NUMBER_OF_TASKS) {
 		tasks[taskCounter] = ScheduledTask(id, sampleTime, taskFunction);
-		Serial.println("I|TM|aT|tc"); // Task has been created
+		Serial.print("I|TM|aT|tc"); // Task has been created
+		Serial.println(id);
 		taskCounter++;
 		result = true;
 	} else {
@@ -58,9 +59,9 @@ bool TaskManager::addTask(int id, unsigned long sampleTime,
 }
 
 //removes task from a list
-bool TaskManager::deactivateTask(int id) {
+bool TaskManager::deactivateTask(uint8_t id) {
 	bool result = false;
-	int indexOfExistingTask = checkIfTaskExists(id);
+	uint8_t indexOfExistingTask = checkIfTaskExists(id);
 	if ((indexOfExistingTask >= 0) && (indexOfExistingTask < taskCounter)) {
 		tasks[indexOfExistingTask].setActivated(false);
 		result = true;
@@ -78,15 +79,14 @@ void TaskManager::realizeTasks() {
 }
 
 // if the task with provided id already exists, its parameters will be updated, while adding task
-int TaskManager::checkIfTaskExists(int id) {
-	int result = -1;
+uint8_t TaskManager::checkIfTaskExists(uint8_t id) {
 	for (int i = 0; i < taskCounter; ++i) {
 		if (tasks[i].getId() == id) {
-			result = id;
 			Serial.print("I|TM|ct|te"); // Task exists on index
-			Serial.println(result);
+			Serial.println(id);
+			return i;
 		}
 	}
 	Serial.println("I|TM|ct|nf"); // No task with provided id was found
-	return result;
+	return -1;
 }
