@@ -59,6 +59,7 @@ public:
 	PIN_TYPE getPinUsage(uint8_t pinNumber);
 	int getNumberOfPinsAviable();
 	bool setPinState(uint8_t pinNumber, uint8_t state);
+	int getPinValue(uint8_t pinNumber);
 	bool setPWM(uint8_t pinNumber, int value);
 	const String getTypeAsString(PIN_TYPE type);
 };

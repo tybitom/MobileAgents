@@ -1,14 +1,11 @@
 #include "Arduino.h"
 
 #include "source/Defines.h"
+#include "source/MotorControl/AgentDriveController.h"
 
-#include "source/MemoryFree/MemoryFree.h"
-
-#include "source/MotorControl/MotorSpeedController.h"
 #include "source/PinControl/TaskManager.h"
 
-MotorSpeedController rightWheel;
-MotorSpeedController leftWheel;
+AgentDriveController agentDriveController;
 
 #include "source/commonFunctions.h"
 
@@ -26,39 +23,35 @@ MotorSpeedController leftWheel;
 volatile uint8_t counter = 0;
 
 void setup() {
-	Serial.begin(38400);
+	Serial.begin(9600); //38400
 
-	rightWheel.initializeController(encoder1PinA, encoder1PinB,
-			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.2, 0.05, 0.01,
-			50);
-	rightWheel.setSetSpeed(0);
+	PinController::getInstance()->setPinUsage(LED_BUILTIN, DIGITAL_OUTPUT);
 
-	leftWheel.initializeController(encoder0PinA, encoder0PinB,
-			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.01, 0.05, 0.002,
-			50);
-	leftWheel.setSetSpeed(0);
+	agentDriveController.initializeController(encoder0PinA, encoder0PinB,
+			encoder1PinA, encoder1PinB, leftEncoderCounter, rightEncoderCounter,
+			motorLPWMPin, motorLDirPin, motorRPWMPin, motorRDirPin);
 
-	Serial.print("I|MA|fm|FM");
-	Serial.println(freeMemory());
+	printFreeMemory();
 
-	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
+	//TaskManager::getInstance()->addTask(0, 100, plotPIDcontrol);
+	//TaskManager::getInstance()->addTask(1, 400, printPIDcontrol);
+	//TaskManager::getInstance()->addTask(2, 50, plotEncoderValues);
+	//TaskManager::getInstance()->addTask(1, 170, printEncoderValues);
 
+	//agentDriveController.setSetSpeed(1000);
 	delay(500);
 
-	rightWheel.enableController();
-	leftWheel.enableController();
+	//agentDriveController.enableController();
 }
 
 void loop() {
 
-	leftWheel.controlSpeed();
-	rightWheel.controlSpeed();
+	agentDriveController.controlSpeed();
 
 	TaskManager::getInstance()->realizeTasks();
 
-	if(counter == 0) {
-		Serial.print("I|MA|fm|FM");
-		Serial.println(freeMemory());
+	if (counter == 0) {
+		printFreeMemory();
 		counter++;
 	}
 }
@@ -66,28 +59,17 @@ void loop() {
 void serialEvent() {
 	String inputString;
 	inputString = Serial.readString();
-	if(inputString.length() >= MAX_RECEIVED_STRING_LEN) {
+	if (inputString.length() >= MAX_RECEIVED_STRING_LEN) {
 		// Serial.println("JSON message too long! Over 100 chars!");
 		Serial.println("S|MA|sE|tl"); // to long
-	}
-	else if (inputString != "") {
+	} else if (inputString != "") {
 		Serial.println(inputString);
 		if (interpreteMessage(inputString)) {
 			Serial.println("I|MA|sE|OK");
 		} else {
 			Serial.println("S|MA|sE|NOK"); // not ok
+			printFreeMemory();
 		}
 		inputString = "";
 	}
-	/*while (Serial.available()) {
-	    // get the new byte:
-	    char inChar = (char)Serial.read();
-	    // add it to the inputString:
-	    inputString += inChar;
-	    // if the incoming character is a newline, set a flag
-	    // so the main loop can do something about it:
-	    if (inChar == '\n') {
-	      stringComplete = true;
-	    }
-	  }*/
 }

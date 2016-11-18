@@ -15,16 +15,16 @@
 
 class TaskManager {
 private:
-	static int taskCounter;
+	static uint8_t taskCounter;
 	ScheduledTask tasks[MAX_NUMBER_OF_TASKS];
 	static TaskManager *taskManagerInstance;
 
-	int checkIfTaskExists(int id);
+	uint8_t checkIfTaskExists(uint8_t id);
 public:
 	static TaskManager* getInstance();
 	//bool addTask(ScheduledTask task);
-	bool addTask(int id, unsigned long sampleTime, void (*taskFunction)(void));
-	bool deactivateTask(int id);
+	bool addTask(uint8_t id, unsigned long sampleTime, void (*taskFunction)(void));
+	bool deactivateTask(uint8_t id);
 	void realizeTasks();
 };
 
