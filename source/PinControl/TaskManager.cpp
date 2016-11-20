@@ -17,23 +17,6 @@ TaskManager* TaskManager::getInstance() {
 	return taskManagerInstance;
 }
 
-/*// adds task to the task list run every time realizeTasks() method is called
- bool TaskManager::addTask(ScheduledTask task) {
- bool result = false;
- int indexOfExistingTask = checkIfTaskExists(task.getId());
- if (indexOfExistingTask > 0 && indexOfExistingTask < taskCounter) {
- tasks[indexOfExistingTask] = task;
- result = true;
-
- } else if (taskCounter < MAX_NUMBER_OF_TASKS) {
- tasks[taskCounter] = task;
- taskCounter++;
- result = true;
- }
- //else Log that no more than MAX_NUMBER_OF_TASKS can be added
- return result;
- }*/
-
 // adds task to the task list run every sampleTime in milliseconds
 // and function realizeTasks() method is called
 bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,

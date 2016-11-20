@@ -42,7 +42,7 @@ void setup() {
 
 	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
 
-	delay(500);
+	delay(500); // delay the start of the program for a while
 
 	leftWheel.enableController();
 	rightWheel.enableController();

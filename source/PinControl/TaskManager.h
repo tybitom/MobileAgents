@@ -22,7 +22,6 @@ private:
 	uint8_t checkIfTaskExists(uint8_t id);
 public:
 	static TaskManager* getInstance();
-	//bool addTask(ScheduledTask task);
 	bool addTask(uint8_t id, unsigned long sampleTime, void (*taskFunction)(void));
 	bool deactivateTask(uint8_t id);
 	void realizeTasks();
