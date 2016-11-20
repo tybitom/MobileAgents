@@ -5,14 +5,14 @@
  *      Author: Tomek
  */
 
-#include "Defines.h"
+#include "../Defines.h"
 #include "SerialInterpreter.h"
 #include "commonFunctions.h"
-#include "PinControl/PinController.h"
-#include "PinControl/TaskManager.h"
+#include "../PinControl/PinController.h"
+#include "../TasksControl/TaskManager.h"
 
 #include "JSONinterpreter.h"
-#include "MotorControl/AgentDriveController.h"
+#include "../MotorControl/AgentDriveController.h"
 
 extern AgentDriveController agentDriveController;
 

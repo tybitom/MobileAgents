@@ -3,13 +3,13 @@
 #include "source/Defines.h"
 #include "source/MotorControl/AgentDriveController.h"
 
-#include "source/PinControl/TaskManager.h"
+#include "source/TasksControl/TaskManager.h"
 
 AgentDriveController agentDriveController;
 
-#include "source/commonFunctions.h"
+#include "source/Communication/commonFunctions.h"
 
-#include "source/SerialInterpreter.h"
+#include "source/Communication/SerialInterpreter.h"
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!! IMPORTANT BEFORE YOU RUN THE PROGRAM !!!!!!!!!!!!!!!!!!

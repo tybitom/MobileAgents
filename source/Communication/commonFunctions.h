@@ -8,9 +8,9 @@
 #ifndef SOURCE_COMMONFUNCTIONS_H_
 #define SOURCE_COMMONFUNCTIONS_H_
 
-#include "MotorControl/AgentDriveController.h"
-#include "PinControl/PinController.h"
-#include "Simplot/Simplot.h"
+#include "../MotorControl/AgentDriveController.h"
+#include "../PinControl/PinController.h"
+#include "../Simplot/Simplot.h"
 
 void blinkLed();
 void printEncoderValues();
