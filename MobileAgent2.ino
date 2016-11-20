@@ -3,14 +3,14 @@
 #include "source/Defines.h"
 
 #include "source/MotorControl/MotorSpeedController.h"
-#include "source/PinControl/TaskManager.h"
+#include "source/TasksControl/TaskManager.h"
 
 MotorSpeedController leftWheel;
 MotorSpeedController rightWheel;
 
-#include "source/commonFunctions.h"
+#include "source/Communication/commonFunctions.h"
 
-#include "source/SerialInterpreter.h"
+#include "source/Communication/SerialInterpreter.h"
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!! IMPORTANT BEFORE YOU RUN THE PROGRAM !!!!!!!!!!!!!!!!!!
