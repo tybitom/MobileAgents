@@ -12,6 +12,10 @@
 volatile unsigned long leftEncoderCounter = 0;
 volatile unsigned long rightEncoderCounter = 0;
 
+volatile bool isDistanceSensorDataReady = false;
+volatile unsigned long distanceSensorSignalDuration = 0;
+volatile unsigned long distanceSensorTriggerTime;
+
 void countImpulsesInterrupt0() {
 	// If pinA and pinB are both high or both low, it is spinning forward.
 	// If they're different, it's going backward.
@@ -28,3 +32,11 @@ void countImpulsesInterrupt1() {
 			rightEncoderCounter-- : rightEncoderCounter++;
 }
 
+void distanceSensorInterrupt() {
+	if (digitalRead(distanceSensorInterruptPin) == HIGH) {
+		distanceSensorTriggerTime = micros();
+	} else {
+		isDistanceSensorDataReady = true;
+		distanceSensorSignalDuration = (micros() - distanceSensorTriggerTime);
+	}
+}

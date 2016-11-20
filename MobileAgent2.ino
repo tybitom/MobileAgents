@@ -9,6 +9,7 @@ MotorSpeedController leftWheel;
 MotorSpeedController rightWheel;
 
 #include "source/commonFunctions.h"
+#include "source/distanceSensor.h"
 
 #include "source/SerialInterpreter.h"
 
@@ -40,9 +41,12 @@ void setup() {
 
 	printFreeMemory();
 
-	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
+	initializeDistanceSensor();
 
-	delay(500);
+	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
+	TaskManager::getInstance()->addTask(1, 1000, triggerDistanceSensorSignal);
+
+	delay(500); // delay the start of the program for a while
 
 	leftWheel.enableController();
 	rightWheel.enableController();
@@ -52,6 +56,8 @@ void loop() {
 
 	leftWheel.controlSpeed();
 	rightWheel.controlSpeed();
+
+	getDistanceSensorMeasurement();
 
 	TaskManager::getInstance()->realizeTasks();
 

@@ -80,7 +80,7 @@ double MotorSpeedController::getKd() const {
 	return Kd;
 }
 
-void MotorSpeedController::setKd(double kd = 0.01) {
+void MotorSpeedController::setKd(double kd) {
 	Kd = kd;
 }
 
@@ -88,7 +88,7 @@ double MotorSpeedController::getKi() const {
 	return Ki;
 }
 
-void MotorSpeedController::setKi(double ki = 0.2) {
+void MotorSpeedController::setKi(double ki) {
 	Ki = ki;
 }
 
@@ -96,7 +96,7 @@ double MotorSpeedController::getKp() const {
 	return Kp;
 }
 
-void MotorSpeedController::setKp(double kp = 0.6) {
+void MotorSpeedController::setKp(double kp) {
 	Kp = kp;
 }
 

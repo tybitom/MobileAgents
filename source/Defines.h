@@ -10,6 +10,7 @@
 
 #define MAX_RECEIVED_STRING_LEN 100
 
+// Encoders:
 #define encoder0PinA  2
 #define encoder0PinB  8
 
@@ -22,11 +23,22 @@ extern volatile unsigned long rightEncoderCounter;
 void countImpulsesInterrupt0();
 void countImpulsesInterrupt1();
 
+// Motors:
 // only one direction PIN is sufficient due to logic gates mounted on board
 #define motorLPWMPin 5 // from schematic to ROMEO D5
 #define motorLDirPin 4 // from schematic to ROMEO D4
 
 #define motorRPWMPin 6 // from schematic to ROMEO D6
 #define motorRDirPin 7 // from schematic to ROMEO D7
+
+// Ultrasonic distance sensor:
+#define distanceSensorInterruptPin 2 // 7
+#define distanceSensorSignalPin 10 // Ultrasound signal pin
+
+extern volatile bool isDistanceSensorDataReady;
+extern volatile unsigned long distanceSensorSignalDuration;
+extern volatile unsigned long distanceSensorTriggerTime;
+
+void distanceSensorInterrupt();
 
 #endif /* DEFINES_H_ */
