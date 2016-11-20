@@ -61,7 +61,7 @@ void loop() {
 
 	TaskManager::getInstance()->realizeTasks();
 
-	if(counter == 0) {
+	if (counter == 0) {
 		printFreeMemory();
 		counter++;
 	}
@@ -70,11 +70,10 @@ void loop() {
 void serialEvent() {
 	String inputString;
 	inputString = Serial.readString();
-	if(inputString.length() >= MAX_RECEIVED_STRING_LEN) {
+	if (inputString.length() >= MAX_RECEIVED_STRING_LEN) {
 		// Serial.println("JSON message too long! Over 100 chars!");
 		Serial.println("S|MA|sE|tl"); // to long
-	}
-	else if (inputString != "") {
+	} else if (inputString != "") {
 		Serial.println(inputString);
 		if (interpreteMessage(inputString)) {
 			Serial.println("I|MA|sE|OK");
@@ -85,14 +84,14 @@ void serialEvent() {
 		inputString = "";
 	}
 	/*while (Serial.available()) {
-	    // get the new byte:
-	    char inChar = (char)Serial.read();
-	    // add it to the inputString:
-	    inputString += inChar;
-	    // if the incoming character is a newline, set a flag
-	    // so the main loop can do something about it:
-	    if (inChar == '\n') {
-	      stringComplete = true;
-	    }
-	  }*/
+	 // get the new byte:
+	 char inChar = (char)Serial.read();
+	 // add it to the inputString:
+	 inputString += inChar;
+	 // if the incoming character is a newline, set a flag
+	 // so the main loop can do something about it:
+	 if (inChar == '\n') {
+	 stringComplete = true;
+	 }
+	 }*/
 }
