@@ -5,12 +5,12 @@
  *      Author: Tomek
  */
 
-#include "Defines.h"
+#include "../Defines.h"
 #include "SerialInterpreter.h"
 #include "commonFunctions.h"
-#include "MotorControl/MotorSpeedController.h"
-#include "PinControl/PinController.h"
-#include "PinControl/TaskManager.h"
+#include "../MotorControl/MotorSpeedController.h"
+#include "../PinControl/PinController.h"
+#include "../TasksControl/TaskManager.h"
 
 #include "JSONinterpreter.h"
 
