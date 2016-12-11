@@ -25,7 +25,7 @@ MotorSpeedController rightWheel;
 volatile uint8_t counter = 0;
 
 void setup() {
-	Serial.begin(38400);
+	Serial.begin(9600);
 
 	PinController::getInstance()->setPinUsage(LED_BUILTIN, DIGITAL_OUTPUT);
 
