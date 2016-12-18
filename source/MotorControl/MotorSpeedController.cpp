@@ -48,24 +48,30 @@ void MotorSpeedController::controlSpeed() {
 
 			// Real PID regulation calculation:
 			double error = setSpeed - measuredSpeed;
-			ITerm += (Ki * error);
-			if (ITerm > outMax) {
-				ITerm = outMax;
-			} else if (ITerm < outMin) {
-				ITerm = outMin;
+
+			if(error > 0) {
+				ITerm += (Ki * error);
+				if (ITerm > outMax) {
+					ITerm = outMax;
+				} else if (ITerm < outMin) {
+					ITerm = outMin;
+				}
+
+				// Compute PID Output:
+				motorOutput = Kp * error + ITerm
+						- Kd * (measuredSpeed - lastMeasuredSpeed);
+
+				if (motorOutput > outMax) {
+					motorOutput = outMax;
+				} else if (motorOutput < outMin) {
+					motorOutput = outMin;
+				}
+
+				lastMeasuredSpeed = measuredSpeed;
 			}
-
-			// Compute PID Output:
-			motorOutput = Kp * error + ITerm
-					- Kd * (measuredSpeed - lastMeasuredSpeed);
-
-			if (motorOutput > outMax) {
-				motorOutput = outMax;
-			} else if (motorOutput < outMin) {
-				motorOutput = outMin;
+			else {
+				motorOutput = 0;
 			}
-
-			lastMeasuredSpeed = measuredSpeed;
 
 			motor->setMotorPWMvalue(motorOutput);
 		}
@@ -80,7 +86,7 @@ double MotorSpeedController::getKd() const {
 	return Kd;
 }
 
-void MotorSpeedController::setKd(double kd = 0.01) {
+void MotorSpeedController::setKd(double kd) {
 	Kd = kd;
 }
 
@@ -88,7 +94,7 @@ double MotorSpeedController::getKi() const {
 	return Ki;
 }
 
-void MotorSpeedController::setKi(double ki = 0.2) {
+void MotorSpeedController::setKi(double ki) {
 	Ki = ki;
 }
 
@@ -96,7 +102,7 @@ double MotorSpeedController::getKp() const {
 	return Kp;
 }
 
-void MotorSpeedController::setKp(double kp = 0.6) {
+void MotorSpeedController::setKp(double kp) {
 	Kp = kp;
 }
 
@@ -134,9 +140,10 @@ double MotorSpeedController::getSetSpeed() const {
 
 void MotorSpeedController::setSetSpeed(double setSpeed) {
 	if (setSpeed >= 0) {
-		motor->changeDirection();
+		motor->setDirectionForward();
 		this->setSpeed = setSpeed;
 	} else {
+		motor->setDirectionBackward();
 		this->setSpeed = (-1) * setSpeed;
 	}
 }

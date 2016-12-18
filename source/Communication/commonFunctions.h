@@ -18,6 +18,8 @@ void plotEncoderValues();
 void printPIDcontrol();
 void plotPIDcontrol();
 void printFreeMemory();
+void printPIDParamsL();
+void printPIDParamsR();
 
 void getNumberOfPinsAviableToSet();
 

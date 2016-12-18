@@ -21,14 +21,16 @@ Encoder::Encoder(uint8_t encoderPinA, uint8_t encoderPinB, volatile unsigned lon
 	PinController::getInstance()->setPinUsage(encoderPinA, DIGITAL_INPUT);
 	PinController::getInstance()->setPinUsage(encoderPinB, DIGITAL_INPUT);
 
+	Serial.print("Encoder no counter: ");
+	Serial.println(encoderInstanceCounter );
+
 	switch (encoderInstanceCounter) {
 	case 0: {
-		attachInterrupt(0, countImpulsesInterrupt0, CHANGE);
-		encoderInstanceCounter++;
+		attachInterrupt(1, countImpulsesInterrupt0, CHANGE);
 		break;
 	}
 	case 1: {
-		attachInterrupt(1, countImpulsesInterrupt1, CHANGE);
+		attachInterrupt(0, countImpulsesInterrupt1, CHANGE);
 		encoderInstanceCounter++;
 		break;
 	}
@@ -37,6 +39,7 @@ Encoder::Encoder(uint8_t encoderPinA, uint8_t encoderPinB, volatile unsigned lon
 		Serial.println("S|E|E|nme"); // no more encoders
 	}
 	}
+	encoderInstanceCounter++;
 }
 
 volatile unsigned long Encoder::getCounterValue() const {

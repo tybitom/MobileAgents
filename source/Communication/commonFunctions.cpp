@@ -69,3 +69,21 @@ void printFreeMemory() {
 	Serial.print("I|cF|fm|FM");
 	Serial.println(freeMemory());
 }
+
+void printPIDParamsL() {
+	Serial.print("PIDp: ");
+	Serial.print(leftWheel.getKp());
+	Serial.print(" ");
+	Serial.print(leftWheel.getKd());
+	Serial.print(" ");
+	Serial.println(leftWheel.getKi());
+}
+
+void printPIDParamsR() {
+	Serial.print("PIDp: ");
+	Serial.print(rightWheel.getKp());
+	Serial.print(" ");
+	Serial.print(rightWheel.getKd());
+	Serial.print(" ");
+	Serial.println(rightWheel.getKi());
+}

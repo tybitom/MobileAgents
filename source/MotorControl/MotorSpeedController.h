@@ -36,7 +36,7 @@ private:
 	double Kd = 0.05;
 	double Ki = 0.002;
 
-	int sampleTime = 200; // a default value the same like in PID.h
+	int sampleTime = 100; // a default value the same like in PID.h
 
 	double measuredSpeed = 0; // [imp/s]
 	double motorOutput = 0; // PWM [0-255]
@@ -51,11 +51,11 @@ public:
 	void controlSpeed();
 	unsigned long getEncoderCounterValue() const;
 	double getKd() const;
-	void setKd(double kd = 0.01);
+	void setKd(double kd);
 	double getKi() const;
-	void setKi(double ki = 0.2);
+	void setKi(double ki);
 	double getKp() const;
-	void setKp(double kp = 0.6);
+	void setKp(double kp);
 	void setPIDParameters(double kp, double ki, double kd);
 	void setSampleTime(int sampleTime);
 	double getMeasuredSpeed() const;

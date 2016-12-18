@@ -26,26 +26,31 @@ volatile uint8_t counter = 0;
 void setup() {
 	Serial.begin(38400);
 
+	delay(1000); // delay the start of the program for a while
+
 	PinController::getInstance()->setPinUsage(LED_BUILTIN, DIGITAL_OUTPUT);
 
 	leftWheel.initializeController(encoder0PinA, encoder0PinB,
-			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.2, 0.05, 0.001,
-			50);
+			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.33, 0.0, 0.0, 50);
 	leftWheel.setSetSpeed(0);
 
 	rightWheel.initializeController(encoder1PinA, encoder1PinB,
-			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.2, 0.05, 0.01,
-			50);
+			rightEncoderCounter, motorRPWMPin, motorRDirPin, 0.3, 0.0, 0.0, 50);
 	rightWheel.setSetSpeed(0);
 
 	printFreeMemory();
 
 	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
+	//TaskManager::getInstance()->addTask(1, 170, printPIDcontrol);
 
 	delay(500); // delay the start of the program for a while
 
+	leftWheel.setSetSpeed(700);
+	rightWheel.setSetSpeed(700);
 	leftWheel.enableController();
 	rightWheel.enableController();
+	/*leftWheel.setMotorPWMvalue(100);
+	 rightWheel.setMotorPWMvalue(100);*/
 }
 
 void loop() {
@@ -55,38 +60,41 @@ void loop() {
 
 	TaskManager::getInstance()->realizeTasks();
 
-	if(counter == 0) {
+	if (counter == 0) {
 		printFreeMemory();
 		counter++;
 	}
+
+	serialRead();
 }
 
-void serialEvent() {
-	String inputString;
-	inputString = Serial.readString();
-	if(inputString.length() >= MAX_RECEIVED_STRING_LEN) {
-		// Serial.println("JSON message too long! Over 100 chars!");
-		Serial.println("S|MA|sE|tl"); // to long
-	}
-	else if (inputString != "") {
-		Serial.println(inputString);
-		if (interpreteMessage(inputString)) {
-			Serial.println("I|MA|sE|OK");
-		} else {
-			Serial.println("S|MA|sE|NOK"); // not ok
-			printFreeMemory();
+void serialRead() {
+	while (Serial.available()) {
+		String inputString;
+		inputString = Serial.readString();
+		if (inputString.length() >= MAX_RECEIVED_STRING_LEN) {
+			// Serial.println("JSON message too long! Over 100 chars!");
+			Serial.println("S|MA|sE|tl"); // to long
+		} else if (inputString != "") {
+			Serial.println(inputString);
+			if (interpreteMessage(inputString)) {
+				Serial.println("I|MA|sE|OK");
+			} else {
+				Serial.println("S|MA|sE|NOK"); // not ok
+				printFreeMemory();
+			}
+			inputString = "";
 		}
-		inputString = "";
 	}
 	/*while (Serial.available()) {
-	    // get the new byte:
-	    char inChar = (char)Serial.read();
-	    // add it to the inputString:
-	    inputString += inChar;
-	    // if the incoming character is a newline, set a flag
-	    // so the main loop can do something about it:
-	    if (inChar == '\n') {
-	      stringComplete = true;
-	    }
-	  }*/
+	 // get the new byte:
+	 char inChar = (char)Serial.read();
+	 // add it to the inputString:
+	 inputString += inChar;
+	 // if the incoming character is a newline, set a flag
+	 // so the main loop can do something about it:
+	 if (inChar == '\n') {
+	 stringComplete = true;
+	 }
+	 }*/
 }

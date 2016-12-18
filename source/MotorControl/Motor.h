@@ -35,6 +35,7 @@ public:
 		PinController::getInstance()->setPinUsage(pwmPin, PWM_PIN);
 		PinController::getInstance()->setPinUsage(dirPin, DIGITAL_OUTPUT);
 		PinController::getInstance()->setPinState(dirPin, LOW);
+		setDirectionForward();
 	}
 	void stopMotor() {
 		analogWrite(pwmPin, 0);
@@ -44,9 +45,15 @@ public:
 	}
 	void changeDirection() {
 		if (digitalRead(dirPin) == LOW)
-			digitalWrite(dirPin, HIGH);
+			setDirectionForward();
 		else
-			digitalWrite(dirPin, LOW);
+			setDirectionBackward();
+	}
+	void setDirectionForward() {
+		PinController::getInstance()->setPinState(dirPin, LOW);
+	}
+	void setDirectionBackward() {
+		PinController::getInstance()->setPinState(dirPin, HIGH);
 	}
 };
 

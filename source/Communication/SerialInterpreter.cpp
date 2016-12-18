@@ -237,10 +237,14 @@ bool interpreteAgentCTRL(const String &json, uint8_t &pos, String &key,
 				rightWheel.stopMotor();
 			} else {
 				leftWheel.setSetSpeed(val);
-				leftWheel.enableController();
 				rightWheel.setSetSpeed(val);
+				leftWheel.enableController();
 				rightWheel.enableController();
 			}
+			Serial.print("Set speed: ");
+			Serial.print(leftWheel.getSetSpeed());
+			Serial.print(" ");
+			Serial.println(rightWheel.getSetSpeed());
 		} else {
 			//Serial.println("SEVERE! Motor control command unknown!");
 			Serial.println("S|SI|iAC|cu"); // command unknown
@@ -281,22 +285,30 @@ bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
 			double kp = atof(value.c_str());
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
-			double ki = atof(value.c_str());
-			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
 			double kd = atof(value.c_str());
+			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+			double ki = atof(value.c_str());
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
 			int sampleTime = atoi(value.c_str());
 			//Serial.println("INFO: Setting new PID parameters...");
 			if (leftMotor) {
+				leftWheel.disableController();
+				leftWheel.stopMotor();
 				leftWheel.setPIDParameters(kp, ki, kd);
 				leftWheel.setSampleTime(sampleTime);
+				leftWheel.enableController();
 			} else {
+				rightWheel.disableController();
+				rightWheel.stopMotor();
 				rightWheel.setPIDParameters(kp, ki, kd);
 				rightWheel.setSampleTime(sampleTime);
+				rightWheel.enableController();
 			}
 		} else if (value == "speed") {
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
 			int setSpeed = atoi(value.c_str());
+			Serial.print("Set speed: ");
+			Serial.println(setSpeed);
 			if (leftMotor) {
 				leftWheel.setSetSpeed(setSpeed);
 			} else {
@@ -340,6 +352,10 @@ bool interpreteQuestion(const String &json, uint8_t &pos, String &key,
 			getNumberOfPinsAviableToSet();
 		} else if (value == "RAM") {
 			printFreeMemory();
+		}  else if (value == "printPIDParamsL") {
+			printPIDParamsL();
+		}  else if (value == "printPIDParamsR") {
+			printPIDParamsR();
 		} else {
 			// Serial.println("SEVERE! Function unknown!");
 			Serial.println("S|SI|iQ|fu"); // fun unknown
