@@ -9,8 +9,10 @@ MotorSpeedController leftWheel;
 MotorSpeedController rightWheel;
 
 #include "source/Communication/commonFunctions.h"
+#include "source/distanceSensor.h"
 
 #include "source/Communication/SerialInterpreter.h"
+
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!! IMPORTANT BEFORE YOU RUN THE PROGRAM !!!!!!!!!!!!!!!!!!
@@ -24,6 +26,7 @@ MotorSpeedController rightWheel;
 volatile uint8_t counter = 0;
 
 void setup() {
+
 	Serial.begin(38400);
 
 	delay(1000); // delay the start of the program for a while
@@ -40,23 +43,31 @@ void setup() {
 
 	printFreeMemory();
 
-	TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
+	//initializeDistanceSensor();
+
+	//TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
 	//TaskManager::getInstance()->addTask(1, 170, printPIDcontrol);
+	//TaskManager::getInstance()->addTask(2, 1000, triggerDistanceSensorSignal);
 
 	delay(500); // delay the start of the program for a while
 
-	leftWheel.setSetSpeed(700);
-	rightWheel.setSetSpeed(700);
+	//leftWheel.setSetSpeed(700);
+	//rightWheel.setSetSpeed(700);
 	leftWheel.enableController();
 	rightWheel.enableController();
-	/*leftWheel.setMotorPWMvalue(100);
-	 rightWheel.setMotorPWMvalue(100);*/
 }
 
 void loop() {
 
+	/*triggerDistanceSensorSignal();
+	getDistanceSensorMeasurement();
+
+	delay(1000);*/
+
 	leftWheel.controlSpeed();
 	rightWheel.controlSpeed();
+
+	getDistanceSensorMeasurement();
 
 	TaskManager::getInstance()->realizeTasks();
 
@@ -86,15 +97,4 @@ void serialRead() {
 			inputString = "";
 		}
 	}
-	/*while (Serial.available()) {
-	 // get the new byte:
-	 char inChar = (char)Serial.read();
-	 // add it to the inputString:
-	 inputString += inChar;
-	 // if the incoming character is a newline, set a flag
-	 // so the main loop can do something about it:
-	 if (inChar == '\n') {
-	 stringComplete = true;
-	 }
-	 }*/
 }

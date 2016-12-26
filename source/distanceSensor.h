@@ -48,6 +48,8 @@ void getDistanceSensorMeasurement() {
 		Serial.println(microsecondsToCentimeters(distanceSensorSignalDuration));
 		isDistanceSensorDataReady = false;
 	}
+	/*else
+		Serial.println("no result");*/
 }
 
 #endif /* SOURCE_DISTANCESENSOR_H_ */

@@ -17,8 +17,8 @@ TaskManager* TaskManager::getInstance() {
 	return taskManagerInstance;
 }
 
-// adds task to the task list run every sampleTime in milliseconds
-// and function realizeTasks() method is called
+// adds task to the task list performed every sampleTime in milliseconds
+// a function has no parameter
 bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,
 		void (*taskFunction)(void)) {
 	bool result = false;
@@ -30,6 +30,31 @@ bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,
 		result = true;
 	} else if (taskCounter < MAX_NUMBER_OF_TASKS) {
 		tasks[taskCounter] = ScheduledTask(id, sampleTime, taskFunction);
+		Serial.print("I|TM|aT|tc"); // Task has been created
+		Serial.println(id);
+		taskCounter++;
+		result = true;
+	} else {
+		Serial.print("I|TM|at|nt");
+		Serial.println(MAX_NUMBER_OF_TASKS); // No more than MAX_NUMBER_OF_TASKS can be added
+	}
+	return result;
+}
+
+// adds a task to the task list performed every sampleTime in milliseconds
+// a function has int parameter
+bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,
+		void (*taskFunction)(uint8_t), uint8_t intParam) {
+	bool result = false;
+	int indexOfExistingTask = checkIfTaskExists(id);
+	// already existing task or new but with already used id
+	if ((indexOfExistingTask >= 0) && (indexOfExistingTask < taskCounter)) {
+		tasks[indexOfExistingTask] = ScheduledTaskWithIntParam(id, sampleTime,
+				taskFunction, intParam);
+		Serial.println("I|TM|aT|tu"); // Task has been updated
+		result = true;
+	} else if (taskCounter < MAX_NUMBER_OF_TASKS) { // new task
+		tasks[taskCounter] = ScheduledTaskWithIntParam(id, sampleTime, taskFunction, intParam);
 		Serial.print("I|TM|aT|tc"); // Task has been created
 		Serial.println(id);
 		taskCounter++;

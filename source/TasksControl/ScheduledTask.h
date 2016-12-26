@@ -34,9 +34,6 @@ public:
 		activated = true;
 		lastTime = millis() - sampleTime;
 	}
-	void doNothing() {
-
-	}
 	bool realizeTask() {
 		unsigned long now = millis();
 		unsigned long timeChange = (now - lastTime);

@@ -23,6 +23,7 @@ private:
 public:
 	static TaskManager* getInstance();
 	bool addTask(uint8_t id, unsigned long sampleTime, void (*taskFunction)(void));
+	bool addTask(uint8_t id, unsigned long sampleTime, void (*taskFunction)(uint8_t), uint8_t intParam);
 	bool deactivateTask(uint8_t id);
 	void realizeTasks();
 };

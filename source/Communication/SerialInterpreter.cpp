@@ -33,6 +33,8 @@ extern MotorSpeedController rightWheel;
 //    "pinNumber": 5,
 //    "pinType": DIGITAL_OUPUT
 // }
+
+// interpretes a json and perform a control function
 bool interpreteMessage(String &json) {
 	bool result = true;
 	uint8_t pos = 0;
@@ -50,10 +52,10 @@ bool interpreteMessage(String &json) {
 		} else if (value == "agent") {
 			result = interpreteAgentCTRL(json, pos, key, value);
 		} else if (value == "motorL") {
-		 result = interpreteMotorCTRL(json, pos, key, value, true);
-		 } else if (value == "motorR") {
-		 result = interpreteMotorCTRL(json, pos, key, value, false);
-		 } else if (value == "quest") {
+			result = interpreteMotorCTRL(json, pos, key, value, true);
+		} else if (value == "motorR") {
+			result = interpreteMotorCTRL(json, pos, key, value, false);
+		} else if (value == "quest") {
 			result = interpreteQuestion(json, pos, key, value);
 		} else {
 			// Serial.println("SEVERE! JSON type unknown! ");
@@ -78,6 +80,7 @@ bool interpreteMessage(String &json) {
 	return result;
 }
 
+// interpretes a command from pin control
 bool interpretePinCTRL(const String &json, uint8_t &pos, String &key,
 		String &value) {
 	bool result = true;
@@ -131,6 +134,7 @@ bool interpretePinCTRL(const String &json, uint8_t &pos, String &key,
 	return result;
 }
 
+// interpretes a command from tasks control
 bool interpreteTask(const String &json, uint8_t &pos, String &key,
 		String &value) {
 	bool result = true;
@@ -184,6 +188,25 @@ bool interpreteTask(const String &json, uint8_t &pos, String &key,
 					Serial.println("S|SI|iT|af"); // Adding task failed!
 					result = false;
 				}
+			} else if (fun == "printPinValue") {
+				getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
+				uint8_t pinNumber = atoi(value.c_str());
+				if ((PinController::getInstance()->getPinUsage(pinNumber)
+						== DIGITAL_INPUT)
+						|| (PinController::getInstance()->getPinUsage(pinNumber)
+								== DIGITAL_INPUT_NO_PULLUP)
+						|| (PinController::getInstance()->getPinUsage(pinNumber)
+								== ANALOG_INPUT)) {
+					if (!TaskManager::getInstance()->addTask(id, sampleTime, &printPinValue, pinNumber)) {
+						//Serial.println("SEVERE! Adding task failed!");
+						Serial.println("S|SI|iT|af"); // Adding task failed!
+						result = false;
+					}
+				} else {
+					// Serial.println("SEVERE! Pin has not been previously set as input!");
+					Serial.println("S|SI|iT|pni"); // pin not input
+					result = false;
+				}
 			} else {
 				// Serial.println("SEVERE! Function for task unknown!");
 				Serial.println("S|SI|iT|fu"); // function unknown
@@ -207,6 +230,7 @@ bool interpreteTask(const String &json, uint8_t &pos, String &key,
 	return result;
 }
 
+// interpretes a command from agent movement control - both engines
 bool interpreteAgentCTRL(const String &json, uint8_t &pos, String &key,
 		String &value) {
 	bool result = true;
@@ -217,24 +241,22 @@ bool interpreteAgentCTRL(const String &json, uint8_t &pos, String &key,
 		result = false;
 	} else {
 		if (value == "stop") {
-			leftWheel.disableController();
-			leftWheel.clearITerm();
 			leftWheel.stopMotor();
-
-			rightWheel.disableController();
-			rightWheel.clearITerm();
 			rightWheel.stopMotor();
+			leftWheel.disableController();
+			rightWheel.disableController();
+			leftWheel.clearITerm();
+			rightWheel.clearITerm();
 		} else if (value == "speed") {
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
 			int val = atoi(value.c_str());
 			if (val == 0) {
-				leftWheel.disableController();
-				leftWheel.clearITerm();
 				leftWheel.stopMotor();
-
-				rightWheel.disableController();
-				rightWheel.clearITerm();
 				rightWheel.stopMotor();
+				leftWheel.disableController();
+				rightWheel.disableController();
+				leftWheel.clearITerm();
+				rightWheel.clearITerm();
 			} else {
 				leftWheel.setSetSpeed(val);
 				rightWheel.setSetSpeed(val);
@@ -254,6 +276,7 @@ bool interpreteAgentCTRL(const String &json, uint8_t &pos, String &key,
 	return result;
 }
 
+// interpretes a command from engine control - only one engine
 bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
 		String &value, bool leftMotor) {
 	bool result = true;
@@ -280,6 +303,14 @@ bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
 					rightWheel.disableController();
 					rightWheel.stopMotor();
 				}
+			}
+		} else if (value == "stop") {
+			if (leftMotor) {
+				leftWheel.disableController();
+				leftWheel.stopMotor();
+			} else {
+				rightWheel.disableController();
+				rightWheel.stopMotor();
 			}
 		} else if (value == "PID") {
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
@@ -331,13 +362,14 @@ bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
 	return result;
 }
 
+// interpretes a command from question control - performs a desired function only once
 bool interpreteQuestion(const String &json, uint8_t &pos, String &key,
 		String &value) {
 	bool result = true;
 
 	if (!getNext(json, pos, key, value) && key == "fun") { // fun like function
-	// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
-		Serial.println("S|SI|iQ|fe"); // fun empty
+// Serial.println("SEVERE! JSON could not be interpreted. fun empty! Probably lack of memory on Arduino.");
+		Serial.println("S|SI|iQ|fe");		// fun empty
 		result = false;
 	} else {
 		if (value == "printEncoderValues") {
@@ -352,13 +384,13 @@ bool interpreteQuestion(const String &json, uint8_t &pos, String &key,
 			getNumberOfPinsAviableToSet();
 		} else if (value == "RAM") {
 			printFreeMemory();
-		}  else if (value == "printPIDParamsL") {
+		} else if (value == "printPIDParamsL") {
 			printPIDParamsL();
-		}  else if (value == "printPIDParamsR") {
+		} else if (value == "printPIDParamsR") {
 			printPIDParamsR();
 		} else {
 			// Serial.println("SEVERE! Function unknown!");
-			Serial.println("S|SI|iQ|fu"); // fun unknown
+			Serial.println("S|SI|iQ|fu");		// fun unknown
 			result = false;
 		}
 	}

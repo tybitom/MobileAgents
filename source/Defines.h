@@ -27,6 +27,17 @@ void countImpulsesInterrupt1();
 #define motorLDirPin 4 // from schematic to ROMEO D4
 
 #define motorRPWMPin 6 // from schematic to ROMEO D6
-#define motorRDirPin 7 // from schematic to ROMEO D7
+#define motorRDirPin 11 // from schematic to ROMEO D7
+
+
+// Ultrasonic distance sensor:
+#define distanceSensorInterruptPin 7
+#define distanceSensorSignalPin 10 // Ultrasound signal pin
+
+extern volatile bool isDistanceSensorDataReady;
+extern volatile unsigned long distanceSensorSignalDuration;
+extern volatile unsigned long distanceSensorTriggerTime;
+
+void distanceSensorInterrupt();
 
 #endif /* DEFINES_H_ */
