@@ -43,11 +43,11 @@ void setup() {
 
 	printFreeMemory();
 
-	//initializeDistanceSensor();
+	initializeDistanceSensor();
 
 	//TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
 	//TaskManager::getInstance()->addTask(1, 170, printPIDcontrol);
-	//TaskManager::getInstance()->addTask(2, 1000, triggerDistanceSensorSignal);
+	TaskManager::getInstance()->addTask(2, 1000, triggerDistanceSensorSignal);
 
 	delay(500); // delay the start of the program for a while
 
