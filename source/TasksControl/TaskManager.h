@@ -12,6 +12,7 @@
 #define MAX_NUMBER_OF_TASKS 5
 
 #include "ScheduledTask.h"
+#include "ScheduledTaskWithIntParam.h"
 
 class TaskManager {
 private:

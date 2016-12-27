@@ -20,6 +20,7 @@ void plotPIDcontrol();
 void printFreeMemory();
 void printPIDParamsL();
 void printPIDParamsR();
+void printPinValue(uint8_t pinNumber);
 
 void getNumberOfPinsAviableToSet();
 

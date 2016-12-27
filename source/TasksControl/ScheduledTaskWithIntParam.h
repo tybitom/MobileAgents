@@ -5,10 +5,11 @@
  *      Author: TTYBISZE
  */
 
-#ifndef SCHEDULEDTASK_H_
-#define SCHEDULEDTASK_H_
+#ifndef SCHEDULEDTASKWITHINTPARAM_H_
+#define SCHEDULEDTASKWITHINTPARAM_H_
 
 #include "Arduino.h"
+#include "ScheduledTask.h"
 
 class ScheduledTaskWithIntParam : public ScheduledTask {
 private:
