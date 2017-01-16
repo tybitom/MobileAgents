@@ -33,8 +33,7 @@ void countImpulsesInterrupt1() {
 }
 
 void distanceSensorInterrupt() {
-	Serial.println("dist int");
-	if (digitalRead(distanceSensorInterruptPin) == HIGH) {
+	if (digitalRead(distanceSensorInterruptPin) == LOW) {
 		distanceSensorTriggerTime = micros();
 	} else {
 		isDistanceSensorDataReady = true;

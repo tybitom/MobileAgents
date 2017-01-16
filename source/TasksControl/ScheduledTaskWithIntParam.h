@@ -11,6 +11,10 @@
 #include "Arduino.h"
 #include "ScheduledTask.h"
 
+// to use this class:
+// 1. method realizeTask needs to be virtual
+// 2. TaskManager needs to operate on array of pointers to ScheduledTask
+// 3. Memory management in cases of deleting and creating tasks needs to be implemented
 class ScheduledTaskWithIntParam : public ScheduledTask {
 private:
 	uint8_t id;
@@ -21,7 +25,8 @@ private:
 
 	unsigned long lastTime;
 public:
-	ScheduledTaskWithIntParam() {
+
+	/*ScheduledTaskWithIntParam() {
 		id = -1;
 		sampleTime = -1;
 		functionPointer = nullptr;
@@ -58,7 +63,7 @@ public:
 
 	void setActivated(bool activated = true) {
 		this->activated = activated;
-	}
+	}*/
 };
 
 #endif /* SCHEDULEDTASK_H_ */

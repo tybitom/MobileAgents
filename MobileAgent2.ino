@@ -21,6 +21,7 @@ MotorSpeedController rightWheel;
 // #define SERIAL_RX_BUFFER_SIZE 100 // 64
 // BIGGER BUFFER IS NEEDED WHILE JSON MESSAGES ARE LONGER THAN 64 CHARACTERS
 // MAX_RECEIVED_STRING_LEN set to 100
+// program accepts only jsons with elements in a right order
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 volatile uint8_t counter = 0;
@@ -31,10 +32,10 @@ void setup() {
 
 	delay(1000); // delay the start of the program for a while
 
-	PinController::getInstance()->setPinUsage(LED_BUILTIN, DIGITAL_OUTPUT);
+	//PinController::getInstance()->setPinUsage(LED_BUILTIN, DIGITAL_OUTPUT);
 
 	leftWheel.initializeController(encoder0PinA, encoder0PinB,
-			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.33, 0.0, 0.0, 50);
+			leftEncoderCounter, motorLPWMPin, motorLDirPin, 0.32, 0.0, 0.0, 50);
 	leftWheel.setSetSpeed(0);
 
 	rightWheel.initializeController(encoder1PinA, encoder1PinB,
@@ -44,32 +45,27 @@ void setup() {
 	printFreeMemory();
 
 	initializeDistanceSensor();
+	initializeDistanceSensor2();
 
 	//TaskManager::getInstance()->addTask(0, 50, plotPIDcontrol);
 	//TaskManager::getInstance()->addTask(1, 170, printPIDcontrol);
 	TaskManager::getInstance()->addTask(2, 1000, triggerDistanceSensorSignal);
+	TaskManager::getInstance()->addTask(3, 1000, triggerDistanceSensor2AndMeasure);
 
 	delay(500); // delay the start of the program for a while
 
-	//leftWheel.setSetSpeed(700);
-	//rightWheel.setSetSpeed(700);
 	leftWheel.enableController();
 	rightWheel.enableController();
 }
 
 void loop() {
 
-	/*triggerDistanceSensorSignal();
-	getDistanceSensorMeasurement();
-
-	delay(1000);*/
-
 	leftWheel.controlSpeed();
 	rightWheel.controlSpeed();
 
-	getDistanceSensorMeasurement();
-
 	TaskManager::getInstance()->realizeTasks();
+
+	getDistanceSensorMeasurement();
 
 	if (counter == 0) {
 		printFreeMemory();
@@ -79,16 +75,21 @@ void loop() {
 	serialRead();
 }
 
+// reads and interpretes messages sent via Serial
+// accepts only jsons with elements in a right order
 void serialRead() {
 	while (Serial.available()) {
 		String inputString;
 		inputString = Serial.readString();
-		if (inputString.length() >= MAX_RECEIVED_STRING_LEN) {
+		int length = inputString.length();
+		if (length >= MAX_RECEIVED_STRING_LEN) {
 			// Serial.println("JSON message too long! Over 100 chars!");
 			Serial.println("S|MA|sE|tl"); // to long
-		} else if (inputString != "") {
+		} else if (length > 2) { // 2 is the minimum length
 			Serial.println(inputString);
-			if (interpreteMessage(inputString)) {
+			if (inputString.startsWith("SS")) { //setSpeed
+				setSpeed(atoi(inputString.substring(2).c_str()));
+			} else if (interpreteMessage(inputString)) {
 				Serial.println("I|MA|sE|OK");
 			} else {
 				Serial.println("S|MA|sE|NOK"); // not ok
@@ -96,5 +97,25 @@ void serialRead() {
 			}
 			inputString = "";
 		}
+	}
+}
+
+// sets speed to an agent
+// is a shorter command to set speed instead of json message
+void setSpeed(int val) {
+	if (val == 0) {
+		leftWheel.stopMotor();
+		rightWheel.stopMotor();
+		leftWheel.disableController();
+		rightWheel.disableController();
+		leftWheel.clearITerm();
+		rightWheel.clearITerm();
+		leftWheel.setSetSpeed(0);
+		rightWheel.setSetSpeed(0);
+	} else {
+		leftWheel.setSetSpeed(val);
+		rightWheel.setSetSpeed(val);
+		leftWheel.enableController();
+		rightWheel.enableController();
 	}
 }

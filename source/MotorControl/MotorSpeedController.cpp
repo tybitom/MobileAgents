@@ -36,10 +36,14 @@ void MotorSpeedController::controlSpeed() {
 
 			if (timeChange > (1.5 * sampleTime)) {
 				// Serial.println("WARNING! dt for control speed was higher than (1,5 * sampleTime).");
-				Serial.println("W|MSC|cS|dth"); // dt to long
+				Serial.print("W|MSC|cS|dth"); // dt to long
+				Serial.println(timeChange);
 			}
 
 			ds = encoderCounterValue - encoderPreviousValue;
+			if(ds < 0) {
+				ds = (-1) * ds;
+			}
 			measuredSpeed = (ds) * (1000.0 / timeChange); // [imp/s]
 
 			lastTime = now;
@@ -169,9 +173,9 @@ String MotorSpeedController::getControlState() {
 }
 
 void MotorSpeedController::enableController() {
-	encoderPreviousValue = encoder->getCounterValue();
-	lastMeasuredSpeed = measuredSpeed; // because, when controller is disabled, motor speed is 0
-	ITerm = motorOutput;
+	//encoderPreviousValue = encoder->getCounterValue();
+	//lastMeasuredSpeed = measuredSpeed; // because, when controller is disabled, motor speed is 0
+	//ITerm = motorOutput;
 	controlState = CONTROL_ENABLED;
 }
 

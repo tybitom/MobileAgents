@@ -34,6 +34,8 @@ public:
 		activated = true;
 		lastTime = millis() - sampleTime;
 	}
+	// this method, if overrided by the class that inherits, should be
+	// virtual
 	bool realizeTask() {
 		unsigned long now = millis();
 		unsigned long timeChange = (now - lastTime);

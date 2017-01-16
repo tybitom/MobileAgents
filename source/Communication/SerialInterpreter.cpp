@@ -154,6 +154,7 @@ bool interpreteTask(const String &json, uint8_t &pos, String &key,
 			unsigned long sampleTime = atoi(value.c_str());
 
 			if (fun == "blinkLed") {
+				PinController::getInstance()->setPinUsage(LED_BUILTIN,DIGITAL_OUTPUT);
 				if (!TaskManager::getInstance()->addTask(id, sampleTime,
 						&blinkLed)) {
 					//Serial.println("SEVERE! Adding task failed!");
@@ -247,6 +248,8 @@ bool interpreteAgentCTRL(const String &json, uint8_t &pos, String &key,
 			rightWheel.disableController();
 			leftWheel.clearITerm();
 			rightWheel.clearITerm();
+			leftWheel.setSetSpeed(0);
+			rightWheel.setSetSpeed(0);
 		} else if (value == "speed") {
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
 			int val = atoi(value.c_str());
@@ -257,6 +260,8 @@ bool interpreteAgentCTRL(const String &json, uint8_t &pos, String &key,
 				rightWheel.disableController();
 				leftWheel.clearITerm();
 				rightWheel.clearITerm();
+				leftWheel.setSetSpeed(0);
+				rightWheel.setSetSpeed(0);
 			} else {
 				leftWheel.setSetSpeed(val);
 				rightWheel.setSetSpeed(val);
@@ -308,9 +313,11 @@ bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
 			if (leftMotor) {
 				leftWheel.disableController();
 				leftWheel.stopMotor();
+				leftWheel.setSetSpeed(0);
 			} else {
 				rightWheel.disableController();
 				rightWheel.stopMotor();
+				rightWheel.setSetSpeed(0);
 			}
 		} else if (value == "PID") {
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
@@ -327,13 +334,13 @@ bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
 				leftWheel.stopMotor();
 				leftWheel.setPIDParameters(kp, ki, kd);
 				leftWheel.setSampleTime(sampleTime);
-				leftWheel.enableController();
+				//leftWheel.enableController();
 			} else {
 				rightWheel.disableController();
 				rightWheel.stopMotor();
 				rightWheel.setPIDParameters(kp, ki, kd);
 				rightWheel.setSampleTime(sampleTime);
-				rightWheel.enableController();
+				//rightWheel.enableController();
 			}
 		} else if (value == "speed") {
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????
@@ -342,8 +349,10 @@ bool interpreteMotorCTRL(const String &json, uint8_t &pos, String &key,
 			Serial.println(setSpeed);
 			if (leftMotor) {
 				leftWheel.setSetSpeed(setSpeed);
+				leftWheel.enableController();
 			} else {
 				rightWheel.setSetSpeed(setSpeed);
+				rightWheel.enableController();
 			}
 		} else if (value == "pwm") {
 			getNext(json, pos, key, value); //////////////////////////?????????????????????????????????????????

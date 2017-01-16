@@ -32,7 +32,11 @@ void countImpulsesInterrupt1();
 
 // Ultrasonic distance sensor:
 #define distanceSensorInterruptPin 7
-#define distanceSensorSignalPin 10 // Ultrasound signal pin
+#define distanceSensorSignalPin 10
+
+// Ultrasonic distance sensor2:
+#define distanceSensor2EchoPin 13
+#define distanceSensor2TrgPin 12
 
 extern volatile bool isDistanceSensorDataReady;
 extern volatile unsigned long distanceSensorSignalDuration;

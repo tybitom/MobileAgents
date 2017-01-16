@@ -41,12 +41,13 @@ bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,
 	return result;
 }
 
+// To use this function please have a look into comment in ScheduledTaskWithIntParam class file
 // adds a task to the task list performed every sampleTime in milliseconds
 // a function has int parameter
 bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,
 		void (*taskFunction)(uint8_t), uint8_t intParam) {
 	bool result = false;
-	int indexOfExistingTask = checkIfTaskExists(id);
+	/*int indexOfExistingTask = checkIfTaskExists(id);
 	// already existing task or new but with already used id
 	if ((indexOfExistingTask >= 0) && (indexOfExistingTask < taskCounter)) {
 		tasks[indexOfExistingTask] = ScheduledTaskWithIntParam(id, sampleTime,
@@ -62,7 +63,7 @@ bool TaskManager::addTask(uint8_t id, unsigned long sampleTime,
 	} else {
 		Serial.print("I|TM|at|nt");
 		Serial.println(MAX_NUMBER_OF_TASKS); // No more than MAX_NUMBER_OF_TASKS can be added
-	}
+	}*/
 	return result;
 }
 
